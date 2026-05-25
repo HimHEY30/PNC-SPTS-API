@@ -11,6 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SwaggerController } from './modules/swagger/swagger.controller';
+import { UsersModule } from './modules/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SwaggerController } from './modules/swagger/swagger.controller';
     DatabaseModule,
     AuthModule,
     HealthModule,
+    UsersModule,
   ],
   controllers: [AppController, SwaggerController],
   providers: [AppService],

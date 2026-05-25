@@ -76,8 +76,16 @@ async function bootstrap() {
   const port = configService.get<number>('app.port', 3000);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
 
-  app.use(`/${apiPrefix}/docs`, swaggerUi.serve, swaggerUi.setup(baseDoc));
-  app.use(`/${apiPrefix}/auth/reference`, swaggerUi.serve, swaggerUi.setup(baseDoc));
+  const swaggerDoc = {
+    ...baseDoc,
+    paths: Object.keys(baseDoc.paths).reduce((acc, key) => {
+      acc[`/${apiPrefix}${key}`] = baseDoc.paths[key];
+      return acc;
+    }, {}),
+  };
+
+  app.use(`/${apiPrefix}/docs`, swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+  app.use(`/${apiPrefix}/auth/reference`, swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
   app.setGlobalPrefix(apiPrefix);
 

@@ -17,8 +17,13 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         email,
+        username: email,
         password: hashed,
-        roleId: roleId ?? (await this.getDefaultRoleId()),
+        role: {
+          connect: {
+            id: roleId ?? (await this.getDefaultRoleId()),
+          },
+        },
       },
     });
     return { id: user.id, email: user.email };

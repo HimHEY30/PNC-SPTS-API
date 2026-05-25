@@ -41,10 +41,14 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
-
+.env.development
+.env.production
+.bring the content below and design a document for....md
+.env.staging
 # temp directory
 .temp
 .tmp
+
 
 # Runtime data
 pids

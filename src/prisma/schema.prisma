@@ -2,36 +2,443 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  engineType = "library"
+  provider      = "prisma-client-js"
+  engineType    = "library"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
   provider = "mysql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
+// =============================================================================
+// 1. Identity and Access Management
+// =============================================================================
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      Role     @relation(fields: [roleId], references: [id])
-  roleId    String
+  id            String        @id @default(cuid())
+  username      String        @unique
+  email         String        @unique
+  password      String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  createdBy     String?
+  updatedBy     String?
+  roleId        String
+  role          Role          @relation(fields: [roleId], references: [id])
+  teacher       Teacher?
+  refreshTokens RefreshToken[]
 }
 
 model Role {
   id          String       @id @default(cuid())
   name        String       @unique
-  permissions Permission[]
+  description String?
   users       User[]
+  permissions Permission[]
 }
 
 model Permission {
-  id   String @id @default(cuid())
-  name String @unique
+  id    String @id @default(cuid())
+  name  String @unique
   roles Role[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  hashed    String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================================================
+// 2. Academic Core
+// =============================================================================
+
+model Student {
+  id              String    @id @default(cuid())
+  studentCode     String    @unique
+  firstName       String
+  lastName        String
+  gender          Gender?
+  dateOfBirth     DateTime?
+  placeOfBirth    String?
+  phone           String?
+  email           String?   @unique
+  profileImage    String?
+  status          StudentStatus @default(active)
+  classId         String?
+  class           Class?    @relation(fields: [classId], references: [id])
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
+
+  followUpCases     FollowUpCase[]
+  studentEvaluations StudentEvaluation[]
+  tutorAssignments  TutorAssignment[]
+  studentScores     StudentScore[]
+
+  @@index([classId])
+}
+
+model Teacher {
+  id           String    @id @default(cuid())
+  teacherCode  String    @unique
+  firstName    String
+  lastName     String
+  phone        String?
+  status       Boolean   @default(true)
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id])
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  createdBy    String?
+  updatedBy    String?
+
+  teacherSubjects      TeacherSubject[]
+  openedFollowUpCases  FollowUpCase[]    @relation("OpenedByTeacher")
+  followUpReports      FollowUpReport[]
+  removedFollowUpCases FollowUpRemoval[]   @relation("RemovedByTeacher")
+  studentEvaluations   StudentEvaluation[]
+  tutorAssignments     TutorAssignment[]   @relation("Tutor")
+  assignedTutors       TutorAssignment[]   @relation("AssignedBy")
+  studentScores        StudentScore[]
+}
+
+model Class {
+  id        String    @id @default(cuid())
+  name      String
+  batchYear Int
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  students        Student[]
+  teacherSubjects TeacherSubject[]
+
+  @@unique([name, batchYear])
+}
+
+model Term {
+  id            String   @id @default(cuid())
+  academicYear  String
+  semester      String
+  startDate     DateTime
+  endDate       DateTime
+  status        TermStatus @default(active)
+
+  teacherSubjects    TeacherSubject[]
+  followUpCases      FollowUpCase[]
+  studentEvaluations StudentEvaluation[]
+  studentScores      StudentScore[]
+
+  @@unique([academicYear, semester])
+}
+
+model Subject {
+  id       String   @id @default(cuid())
+  code     String   @unique
+  name     String
+  credit   Int
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacherSubjects TeacherSubject[]
+  studentScores   StudentScore[]
+}
+
+model TeacherSubject {
+  id        String  @id @default(cuid())
+  teacherId String
+  subjectId String
+  termId    String
+  classId   String
+
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  term      Term    @relation(fields: [termId], references: [id])
+  class     Class   @relation(fields: [classId], references: [id])
+
+  @@unique([teacherId, subjectId, termId, classId])
+  @@index([teacherId])
+  @@index([subjectId])
+  @@index([termId])
+  @@index([classId])
+}
+
+// =============================================================================
+// 3. Follow-Up Management
+// =============================================================================
+
+model FollowUpCase {
+  id                String        @id @default(cuid())
+  studentId         String
+  openedByTeacherId String
+  termId            String
+  title             String
+  description       String?
+  priority          PriorityLevel @default(medium)
+  statusId          String
+  openedDate        DateTime      @default(now())
+  closedDate        DateTime?
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
+  createdBy         String?
+  updatedBy         String?
+
+  student         Student             @relation(fields: [studentId], references: [id])
+  openedByTeacher Teacher             @relation("OpenedByTeacher", fields: [openedByTeacherId], references: [id])
+  term            Term                @relation(fields: [termId], references: [id])
+  status          FollowUpStatus      @relation(fields: [statusId], references: [id])
+  
+  caseTypeMap     FollowUpCaseTypeMap[]
+  reports         FollowUpReport[]
+  removals        FollowUpRemoval[]
+
+  @@index([studentId])
+  @@index([openedByTeacherId])
+  @@index([termId])
+  @@index([statusId])
+}
+
+model FollowUpCaseType {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  caseTypeMap FollowUpCaseTypeMap[]
+}
+
+model FollowUpCaseTypeMap {
+  id             String @id @default(cuid())
+  followUpCaseId String
+  followUpTypeId String
+
+  followUpCase FollowUpCase     @relation(fields: [followUpCaseId], references: [id])
+  followUpType FollowUpCaseType @relation(fields: [followUpTypeId], references: [id])
+
+  @@unique([followUpCaseId, followUpTypeId])
+  @@index([followUpCaseId])
+  @@index([followUpTypeId])
+}
+
+model FollowUpStatus {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  colorCode String?
+
+  followUpCases FollowUpCase[]
+}
+
+model FollowUpReport {
+  id             String   @id @default(cuid())
+  followUpCaseId String
+  teacherId      String
+  reportDate     DateTime @default(now())
+  progressStatus String?
+  observation    String?
+  nextAction     String?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  followUpCase FollowUpCase @relation(fields: [followUpCaseId], references: [id])
+  teacher      Teacher      @relation(fields: [teacherId], references: [id])
+  attachments  FollowUpAttachment[]
+
+  @@index([followUpCaseId])
+  @@index([teacherId])
+}
+
+model FollowUpAttachment {
+  id        String   @id @default(cuid())
+  reportId  String
+  fileName  String
+  filePath  String
+  fileType  String
+  fileSize  Int
+  storageProvider String @default("local")
+  
+  uploadedAt DateTime @default(now())
+
+  report FollowUpReport @relation(fields: [reportId], references: [id])
+
+  @@index([reportId])
+}
+
+model FollowUpRemoval {
+  id                  String   @id @default(cuid())
+  followUpCaseId      String
+  removedByTeacherId  String
+  removalReason       String?
+  removalDate         DateTime @default(now())
+
+  followUpCase      FollowUpCase @relation(fields: [followUpCaseId], references: [id])
+  removedByTeacher  Teacher      @relation("RemovedByTeacher", fields: [removedByTeacherId], references: [id])
+
+  @@index([followUpCaseId])
+  @@index([removedByTeacherId])
+}
+
+// =============================================================================
+// 4. Performance Evaluation
+// =============================================================================
+
+model EvaluationCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  studentEvaluations StudentEvaluation[]
+}
+
+model RatingScale {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  minValue    Decimal
+  maxValue    Decimal
+  description String?
+
+  studentEvaluations StudentEvaluation[]
+}
+
+model StudentEvaluation {
+  id              String   @id @default(cuid())
+  studentId       String
+  teacherId       String
+  termId          String
+  categoryId      String
+  ratingScaleId   String
+  score           Decimal
+  comment         String?
+  evaluatedAt     DateTime @default(now())
+
+  student       Student            @relation(fields: [studentId], references: [id])
+  teacher       Teacher            @relation(fields: [teacherId], references: [id])
+  term          Term               @relation(fields: [termId], references: [id])
+  category      EvaluationCategory @relation(fields: [categoryId], references: [id])
+  ratingScale   RatingScale        @relation(fields: [ratingScaleId], references: [id])
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([termId])
+  @@index([categoryId])
+  @@index([ratingScaleId])
+}
+
+// =============================================================================
+// 5. Tutor Assignment
+// =============================================================================
+
+model TutorAssignment {
+  id                String   @id @default(cuid())
+  studentId         String
+  teacherId         String
+  assignedByTeacherId String
+  assignedDate      DateTime @default(now())
+  endDate           DateTime?
+  status            TutorAssignmentStatus @default(active)
+  notes             String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  student   Student @relation(fields: [studentId], references: [id])
+  teacher   Teacher @relation("Tutor", fields: [teacherId], references: [id])
+  assignedBy Teacher @relation("AssignedBy", fields: [assignedByTeacherId], references: [id])
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([assignedByTeacherId])
+}
+
+// =============================================================================
+// 6. Score Management
+// =============================================================================
+
+model ScoreType {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  percentageWeight Decimal?
+  description      String?
+
+  studentScores StudentScore[]
+}
+
+model StudentScore {
+  id          String   @id @default(cuid())
+  studentId   String
+  subjectId   String
+  teacherId   String
+  termId      String
+  scoreTypeId String
+  scoreValue  Decimal
+  maxScore    Decimal
+  remarks     String?
+  recordedAt  DateTime @default(now())
+
+  student   Student   @relation(fields: [studentId], references: [id])
+  subject   Subject   @relation(fields: [subjectId], references: [id])
+  teacher   Teacher   @relation(fields: [teacherId], references: [id])
+  term      Term      @relation(fields: [termId], references: [id])
+  scoreType ScoreType @relation(fields: [scoreTypeId], references: [id])
+
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([teacherId])
+  @@index([termId])
+  @@index([scoreTypeId])
+}
+
+// =============================================================================
+// Enums
+// =============================================================================
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum StudentStatus {
+  active
+  suspended
+  graduated
+}
+
+enum TermStatus {
+  active
+  closed
+}
+
+enum PriorityLevel {
+  low
+  medium
+  high
+  critical
+}
+
+enum TutorAssignmentStatus {
+  active
+  completed
+  cancelled
 }
 
