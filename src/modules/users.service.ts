@@ -11,37 +11,41 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { email, password, roleId, ...rest } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
-    return this.prisma.user.create({
+    return this.prisma.authUser.create({
       data: {
         ...rest,
         email,
-        password: hashedPassword,
-        role: {
-          connect: { id: roleId },
+        password_hash: hashedPassword,
+        roles: {
+          create: {
+            role: {
+              connect: { id: roleId }
+            }
+          }
         },
       },
     });
   }
 
   findAll() {
-    return this.prisma.user.findMany();
+    return this.prisma.authUser.findMany();
   }
 
   findOne(id: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.authUser.findUnique({
       where: { id },
     });
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
+    return this.prisma.authUser.update({
       where: { id },
       data: updateUserDto,
     });
   }
 
   remove(id: string) {
-    return this.prisma.user.delete({
+    return this.prisma.authUser.delete({
       where: { id },
     });
   }

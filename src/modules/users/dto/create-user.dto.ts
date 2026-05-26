@@ -3,7 +3,7 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
-  username: string;
+  entity_type: string;
 
   @IsEmail()
   @IsNotEmpty()

@@ -39,41 +39,53 @@ async function main() {
   // Create users
   const hashedPassword = await bcrypt.hash('password123', 10);
 
-  const adminUser = await prisma.user.upsert({
+  const adminUser = await prisma.authUser.upsert({
     where: { email: 'admin@example.com' },
     update: {},
     create: {
-      username: 'admin',
       email: 'admin@example.com',
-      password: hashedPassword,
-      role: {
-        connect: { id: roleAdmin.id },
+      password_hash: hashedPassword,
+      entity_type: 'admin',
+      roles: {
+        create: {
+          role: {
+            connect: { id: roleAdmin.id },
+          },
+        },
       },
     },
   });
 
-  const teacherUser = await prisma.user.upsert({
+  const teacherUser = await prisma.authUser.upsert({
     where: { email: 'teacher@example.com' },
     update: {},
     create: {
-      username: 'teacher',
       email: 'teacher@example.com',
-      password: hashedPassword,
-      role: {
-        connect: { id: roleTeacher.id },
+      password_hash: hashedPassword,
+      entity_type: 'teacher',
+      roles: {
+        create: {
+          role: {
+            connect: { id: roleTeacher.id },
+          },
+        },
       },
     },
   });
 
-  const studentUser = await prisma.user.upsert({
+  const studentUser = await prisma.authUser.upsert({
     where: { email: 'student@example.com' },
     update: {},
     create: {
-      username: 'student',
       email: 'student@example.com',
-      password: hashedPassword,
-      role: {
-        connect: { id: roleStudent.id },
+      password_hash: hashedPassword,
+      entity_type: 'student',
+      roles: {
+        create: {
+          role: {
+            connect: { id: roleStudent.id },
+          },
+        },
       },
     },
   });

@@ -25,7 +25,20 @@ export class SwaggerController {
       doc.paths['/auth/login'] = {
         post: {
           summary: 'Login user',
-          requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    email: { type: 'string', example: 'admin@example.com' },
+                    password: { type: 'string', example: 'password123' },
+                  },
+                  required: ['email', 'password'],
+                },
+              },
+            },
+          },
           responses: { '200': { description: 'OK' } },
         },
       };
@@ -56,7 +69,20 @@ export class SwaggerController {
         '/auth/login': {
           post: {
             summary: 'Login user',
-            requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { email: { type: 'string' }, password: { type: 'string' } }, required: ['email', 'password'] } } } },
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      email: { type: 'string', example: 'admin@example.com' },
+                      password: { type: 'string', example: 'password123' },
+                    },
+                    required: ['email', 'password'],
+                  },
+                },
+              },
+            },
             responses: { '200': { description: 'OK' } },
           },
         },

@@ -45,8 +45,8 @@ const baseDoc = {
               schema: {
                 type: 'object',
                 properties: {
-                  email: { type: 'string' },
-                  password: { type: 'string' },
+                  email: { type: 'string', example: 'admin@example.com' },
+                  password: { type: 'string', example: 'password123' },
                 },
                 required: ['email', 'password'],
               },
