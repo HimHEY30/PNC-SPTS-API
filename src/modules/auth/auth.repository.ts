@@ -18,6 +18,19 @@ export class AuthRepository {
     });
   }
 
+  async findUserById(userId: string) {
+    return this.prisma.authUser.findUnique({
+      where: { id: userId },
+      include: {
+        roles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
   async createUser(email: string, passwordHash: string) {
     return this.prisma.authUser.create({
       data: {
@@ -66,6 +79,38 @@ export class AuthRepository {
       this.prisma.authUser.update({
         where: { id: userId },
         data: { last_login_at: new Date() },
+      }),
+    ]);
+  }
+
+  async findRefreshTokensByUserId(userId: string) {
+    return this.prisma.refreshToken.findMany({
+      where: { user_id: userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async rotateRefreshToken(
+    oldRefreshTokenId: string,
+    userId: string,
+    newTokenHash: string,
+    newExpiresAt: Date,
+  ) {
+    const revokedAt = new Date();
+    return this.prisma.$transaction([
+      this.prisma.refreshToken.update({
+        where: { id: oldRefreshTokenId },
+        data: {
+          revoked: true,
+          revoked_at: revokedAt,
+        } as any,
+      }),
+      this.prisma.refreshToken.create({
+        data: {
+          user_id: userId,
+          token_hash: newTokenHash,
+          expires_at: newExpiresAt,
+        },
       }),
     ]);
   }

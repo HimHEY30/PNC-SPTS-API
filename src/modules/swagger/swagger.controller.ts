@@ -82,6 +82,26 @@ export class SwaggerController {
         '/auth/logout': {
           post: { summary: 'Logout', responses: { '200': { description: 'OK' } }, tags: ['Authentication'] },
         },
+        '/auth/refresh': {
+          post: {
+            summary: 'Refresh token',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      refresh_token: { type: 'string', example: 'your-refresh-token' },
+                    },
+                    required: ['refresh_token'],
+                  },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+            tags: ['Authentication'],
+          },
+        },
       },
     };
     authSpec.paths = Object.fromEntries(
@@ -138,6 +158,31 @@ export class SwaggerController {
     };
     doc.paths['/auth/logout'] = {
       post: { summary: 'Logout', responses: { '200': { description: 'OK' } }, tags: ['Authentication'] },
+    };
+    doc.paths['/auth/refresh'] = {
+      post: {
+        summary: 'Refresh token',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  refresh_token: { type: 'string', example: 'your-refresh-token' },
+                },
+                required: ['refresh_token'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '422': { description: 'Validation Error' },
+        },
+        tags: ['Authentication'],
+      },
     };
 
     // ---- Data endpoints ----------------------------------------------------

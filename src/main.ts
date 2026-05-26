@@ -77,6 +77,30 @@ const baseSwaggerDoc = {
         },
       },
     },
+    '/auth/refresh': {
+      post: {
+        summary: 'Refresh token',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  refresh_token: { type: 'string', example: 'your-refresh-token' },
+                },
+                required: ['refresh_token'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '422': { description: 'Validation Error' },
+        },
+      },
+    },
     '/user/profile': {
       get: {
         summary: 'Get user profile',
@@ -107,6 +131,14 @@ async function bootstrap() {
     res.type('application/javascript').send(`
       (function() {
         const TOKEN_KEY = 'swagger_auto_bearer_token';
+        function applySwaggerAuth(token) {
+          if (!token || !window.ui || typeof window.ui.preauthorizeApiKey !== 'function') return;
+          try {
+            window.ui.preauthorizeApiKey('bearerAuth', token);
+          } catch (_) {}
+        }
+
+        applySwaggerAuth(localStorage.getItem(TOKEN_KEY));
         const originalFetch = window.fetch.bind(window);
 
         window.fetch = async function(input, init) {
@@ -128,6 +160,7 @@ async function bootstrap() {
               const accessToken = payload && (payload.access_token || payload.token);
               if (accessToken) {
                 localStorage.setItem(TOKEN_KEY, accessToken);
+                applySwaggerAuth(accessToken);
               }
             } catch (_) {}
           }

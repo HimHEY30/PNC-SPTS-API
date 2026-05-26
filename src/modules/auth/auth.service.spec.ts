@@ -11,6 +11,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 // Mock data
 const mockUser = {
@@ -32,6 +33,10 @@ const mockRegisterDto: RegisterDto = {
   password: 'Password123!',
 };
 
+const mockRefreshTokenDto: RefreshTokenDto = {
+  refresh_token: 'valid-refresh-token',
+};
+
 describe('AuthService', () => {
   let service: AuthService;
   let repository: AuthRepository;
@@ -45,6 +50,9 @@ describe('AuthService', () => {
           provide: AuthRepository,
           useValue: {
             findUserByEmail: jest.fn(),
+            findUserById: jest.fn(),
+            findRefreshTokensByUserId: jest.fn(),
+            rotateRefreshToken: jest.fn(),
             performTransaction: jest.fn(),
             createUser: jest.fn(),
           },
@@ -53,6 +61,7 @@ describe('AuthService', () => {
           provide: JwtService,
           useValue: {
             signAsync: jest.fn(),
+            verifyAsync: jest.fn(),
           },
         },
         {
@@ -118,6 +127,124 @@ describe('AuthService', () => {
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }),
+      );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // refresh
+  // ---------------------------------------------------------------------------
+  describe('refresh', () => {
+    it('should return new token pair for valid refresh token', async () => {
+      const activeStoredToken = {
+        id: 'rt-1',
+        token_hash: 'stored-hash',
+        expires_at: new Date(Date.now() + 60_000),
+        revoked_at: null,
+      };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([activeStoredToken] as any);
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(async (plain: string, hash: string) => plain === 'valid-refresh-token' && hash === 'stored-hash');
+      jest.spyOn(repository, 'findUserById').mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(jwtService, 'signAsync')
+        .mockResolvedValueOnce('new-access-token' as never)
+        .mockResolvedValueOnce('new-refresh-token' as never);
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('new-refresh-hash' as never);
+      jest.spyOn(repository, 'rotateRefreshToken').mockResolvedValue(true as any);
+
+      const result = await service.refresh(mockRefreshTokenDto);
+
+      expect(result).toEqual({
+        access_token: 'new-access-token',
+        refresh_token: 'new-refresh-token',
+        expires_in: 900,
+      });
+    });
+
+    it('should revoke old refresh token after rotation', async () => {
+      const activeStoredToken = {
+        id: 'rt-1',
+        token_hash: 'stored-hash',
+        expires_at: new Date(Date.now() + 60_000),
+        revoked_at: null,
+      };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([activeStoredToken] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      jest.spyOn(repository, 'findUserById').mockResolvedValue(mockUser as any);
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('token' as never);
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('new-refresh-hash' as never);
+      const rotateSpy = jest.spyOn(repository, 'rotateRefreshToken').mockResolvedValue(true as any);
+
+      await service.refresh(mockRefreshTokenDto);
+
+      expect(rotateSpy).toHaveBeenCalledWith(
+        'rt-1',
+        'user-id',
+        'new-refresh-hash',
+        expect.any(Date),
+      );
+    });
+
+    it('should throw TOKEN_REVOKED for reused revoked refresh token', async () => {
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
+        {
+          id: 'rt-1',
+          token_hash: 'stored-hash',
+          expires_at: new Date(Date.now() + 60_000),
+          revoked_at: new Date(),
+        },
+      ] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+
+      await expect(service.refresh(mockRefreshTokenDto)).rejects.toThrow(
+        new UnauthorizedException({ error: 'TOKEN_REVOKED' }),
+      );
+    });
+
+    it('should throw TOKEN_EXPIRED for expired refresh token', async () => {
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
+        {
+          id: 'rt-1',
+          token_hash: 'stored-hash',
+          expires_at: new Date(Date.now() - 60_000),
+          revoked_at: null,
+        },
+      ] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+
+      await expect(service.refresh(mockRefreshTokenDto)).rejects.toThrow(
+        new UnauthorizedException({ error: 'TOKEN_EXPIRED' }),
+      );
+    });
+
+    it('should throw UnauthorizedException for invalid refresh token', async () => {
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
+        {
+          id: 'rt-1',
+          token_hash: 'stored-hash',
+          expires_at: new Date(Date.now() + 60_000),
+          revoked_at: null,
+        },
+      ] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+
+      await expect(service.refresh(mockRefreshTokenDto)).rejects.toThrow(
+        new UnauthorizedException({ error: 'INVALID_TOKEN' }),
+      );
+    });
+
+    it('should throw validation error when refresh token is missing', async () => {
+      await expect(service.refresh({ refresh_token: '' })).rejects.toThrow(
+        new Error('VALIDATION_ERROR'),
       );
     });
   });

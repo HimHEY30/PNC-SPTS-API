@@ -2,11 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UnprocessableEntityException } from '@nestjs/common';
 
 const mockLoginDto: LoginDto = {
   email: 'test@example.com',
   password: 'password',
+};
+
+const mockRefreshTokenDto: RefreshTokenDto = {
+  refresh_token: 'refresh-token',
 };
 
 describe('AuthController', () => {
@@ -21,6 +26,7 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: {
             login: jest.fn(),
+            refresh: jest.fn(),
           },
         },
       ],
@@ -57,5 +63,23 @@ describe('AuthController', () => {
   
         await expect(controller.login(mockLoginDto)).rejects.toThrow(error);
       });
+  });
+
+  describe('refresh', () => {
+    it('should call authService.refresh and return the result', async () => {
+      const result = { access_token: 'token', refresh_token: 'new-refresh', expires_in: 900 };
+      jest.spyOn(service, 'refresh').mockResolvedValue(result as any);
+
+      expect(await controller.refresh(mockRefreshTokenDto)).toBe(result);
+      expect(service.refresh).toHaveBeenCalledWith(mockRefreshTokenDto);
+    });
+
+    it('should throw UnprocessableEntityException on validation error', async () => {
+      jest.spyOn(service, 'refresh').mockRejectedValue(new Error('VALIDATION_ERROR'));
+
+      await expect(controller.refresh(mockRefreshTokenDto)).rejects.toThrow(
+        new UnprocessableEntityException({ error: 'VALIDATION_ERROR' }),
+      );
+    });
   });
 });

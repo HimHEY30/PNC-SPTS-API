@@ -9,6 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Public } from '../../common/decorators/public.decorator';
 
 @Controller('auth')
@@ -35,6 +36,20 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     try {
       return await this.authService.login(loginDto);
+    } catch (error) {
+      if (error.message === 'VALIDATION_ERROR') {
+        throw new UnprocessableEntityException({ error: 'VALIDATION_ERROR' });
+      }
+      throw error;
+    }
+  }
+
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    try {
+      return await this.authService.refresh(refreshTokenDto);
     } catch (error) {
       if (error.message === 'VALIDATION_ERROR') {
         throw new UnprocessableEntityException({ error: 'VALIDATION_ERROR' });

@@ -65,6 +65,7 @@ model RefreshToken {
   user       AuthUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
   expires_at DateTime
   revoked    Boolean  @default(false)
+  revoked_at DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
