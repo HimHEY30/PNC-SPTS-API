@@ -4,6 +4,7 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  ForbiddenException,
   UnprocessableEntityException,
   Req,
   UnauthorizedException,
@@ -23,15 +24,11 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() registerDto: RegisterDto) {
-    try {
-      return await this.authService.register(registerDto);
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message === 'VALIDATION_ERROR') {
-        throw new UnprocessableEntityException({ error: 'VALIDATION_ERROR' });
-      }
-      throw error;
-    }
+  async register(@Body() _registerDto: RegisterDto) {
+    throw new ForbiddenException({
+      error: 'REGISTRATION_DISABLED',
+      message: 'Public registration is not supported.',
+    });
   }
 
   @Public()

@@ -1,33 +1,34 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
+
+const authUserWithRolesInclude = {
+  roles: {
+    include: {
+      role: true,
+    },
+  },
+} satisfies Prisma.AuthUserInclude;
+
+export type AuthUserWithRoles = Prisma.AuthUserGetPayload<{
+  include: typeof authUserWithRolesInclude;
+}>;
 
 @Injectable()
 export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<AuthUserWithRoles | null> {
     return this.prisma.authUser.findUnique({
       where: { email },
-      include: {
-        roles: {
-          include: {
-            role: true,
-          },
-        },
-      },
+      include: authUserWithRolesInclude,
     });
   }
 
-  async findUserById(userId: string) {
+  async findUserById(userId: string): Promise<AuthUserWithRoles | null> {
     return this.prisma.authUser.findUnique({
       where: { id: userId },
-      include: {
-        roles: {
-          include: {
-            role: true,
-          },
-        },
-      },
+      include: authUserWithRolesInclude,
     });
   }
 
@@ -37,7 +38,10 @@ export class AuthRepository {
         email,
         password_hash: passwordHash,
         entity_type: 'teacher',
+        first_name: 'Public',
+        last_name: 'Registration',
         is_active: true,
+        status: 'ACTIVE',
       },
     });
   }

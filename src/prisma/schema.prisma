@@ -21,8 +21,13 @@ model AuthUser {
   email         String    @unique
   password_hash String
   entity_type   String // e.g., 'teacher', 'manager'
+  first_name    String
+  last_name     String
+  phone         String?   @unique
   is_active     Boolean   @default(true)
+  status        AuthUserStatus @default(ACTIVE)
   last_login_at DateTime?
+  deletedAt     DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -456,5 +461,12 @@ enum TutorAssignmentStatus {
   active
   completed
   cancelled
+}
+
+enum AuthUserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  LOCKED
 }
 

@@ -3,41 +3,128 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  SUPER_ADMIN: [
+    'user.create',
+    'user.read',
+    'user.update',
+    'user.delete',
+    'user.assign_role',
+    'role.create',
+    'role.read',
+    'role.update',
+    'role.delete',
+    'permission.read',
+    'permission.assign',
+    'system.manage',
+    'audit.read',
+  ],
+  ADMIN: [
+    'user.create',
+    'user.read',
+    'user.update',
+    'user.assign_role',
+    'student.*',
+    'followup.*',
+    'evaluation.*',
+    'report.read',
+  ],
+  ACADEMIC_MANAGER: [
+    'student.read',
+    'student.update',
+    'followup.read',
+    'followup.approve',
+    'evaluation.read',
+    'evaluation.approve',
+    'report.read',
+  ],
+  FOLLOWUP_OFFICER: [
+    'student.read',
+    'student.update',
+    'followup.create',
+    'followup.update',
+    'followup.close',
+  ],
+  TUTOR: [
+    'student.read_assigned',
+    'evaluation.create',
+    'evaluation.update',
+    'evaluation.submit',
+    'score.create',
+    'score.update',
+  ],
+  STUDENT: [
+    'profile.read',
+    'followup.read_own',
+    'evaluation.read_own',
+    'score.read_own',
+  ],
+};
+
 async function main() {
   console.log('Start seeding ...');
 
-  // Create roles
-  const roleAdmin = await prisma.role.upsert({
-    where: { name: 'ADMIN' },
+  const allPermissionNames = [...new Set(Object.values(ROLE_PERMISSIONS).flat())];
+  await Promise.all(
+    allPermissionNames.map((name) =>
+      prisma.permission.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      }),
+    ),
+  );
+
+  const roleEntries = await Promise.all(
+    Object.entries(ROLE_PERMISSIONS).map(([name, permissions]) =>
+      prisma.role.upsert({
+        where: { name },
+        update: {
+          description: `${name.replace(/_/g, ' ')} role`,
+          permissions: {
+            set: permissions.map((permissionName) => ({
+              name: permissionName,
+            })),
+          },
+        },
+        create: {
+          name,
+          description: `${name.replace(/_/g, ' ')} role`,
+          permissions: {
+            connect: permissions.map((permissionName) => ({
+              name: permissionName,
+            })),
+          },
+        },
+      }),
+    ),
+  );
+
+  const rolesByName = new Map(roleEntries.map((role) => [role.name, role]));
+
+  console.log('Roles and permissions created.');
+
+  const hashedPassword = await bcrypt.hash('Password123!', 10);
+
+  const superAdminUser = await prisma.authUser.upsert({
+    where: { email: 'superadmin@example.com' },
     update: {},
     create: {
-      name: 'ADMIN',
-      description: 'Administrator role',
+      email: 'superadmin@example.com',
+      password_hash: hashedPassword,
+      entity_type: 'super_admin',
+      first_name: 'Super',
+      last_name: 'Admin',
+      status: 'ACTIVE',
+      roles: {
+        create: {
+          role: {
+            connect: { id: rolesByName.get('SUPER_ADMIN')!.id },
+          },
+        },
+      },
     },
   });
-
-  const roleTeacher = await prisma.role.upsert({
-    where: { name: 'TEACHER' },
-    update: {},
-    create: {
-      name: 'TEACHER',
-      description: 'Teacher role',
-    },
-  });
-
-  const roleStudent = await prisma.role.upsert({
-    where: { name: 'STUDENT' },
-    update: {},
-    create: {
-      name: 'STUDENT',
-      description: 'Student role',
-    },
-  });
-
-  console.log('Roles created.');
-
-  // Create users
-  const hashedPassword = await bcrypt.hash('password123', 10);
 
   const adminUser = await prisma.authUser.upsert({
     where: { email: 'admin@example.com' },
@@ -46,44 +133,33 @@ async function main() {
       email: 'admin@example.com',
       password_hash: hashedPassword,
       entity_type: 'admin',
+      first_name: 'System',
+      last_name: 'Admin',
+      status: 'ACTIVE',
       roles: {
         create: {
           role: {
-            connect: { id: roleAdmin.id },
+            connect: { id: rolesByName.get('ADMIN')!.id },
           },
         },
       },
     },
   });
 
-  const teacherUser = await prisma.authUser.upsert({
-    where: { email: 'teacher@example.com' },
+  const tutorUser = await prisma.authUser.upsert({
+    where: { email: 'tutor@example.com' },
     update: {},
     create: {
-      email: 'teacher@example.com',
+      email: 'tutor@example.com',
       password_hash: hashedPassword,
       entity_type: 'teacher',
+      first_name: 'Default',
+      last_name: 'Tutor',
+      status: 'ACTIVE',
       roles: {
         create: {
           role: {
-            connect: { id: roleTeacher.id },
-          },
-        },
-      },
-    },
-  });
-
-  const studentUser = await prisma.authUser.upsert({
-    where: { email: 'student@example.com' },
-    update: {},
-    create: {
-      email: 'student@example.com',
-      password_hash: hashedPassword,
-      entity_type: 'student',
-      roles: {
-        create: {
-          role: {
-            connect: { id: roleStudent.id },
+            connect: { id: rolesByName.get('TUTOR')!.id },
           },
         },
       },
@@ -91,7 +167,10 @@ async function main() {
   });
 
   console.log('Users created.');
-  console.log({ adminUser, teacherUser, studentUser });
+  console.log({
+    roles: roleEntries.map((role) => role.name),
+    users: [superAdminUser.email, adminUser.email, tutorUser.email],
+  });
 }
 
 main()

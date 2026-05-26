@@ -1,132 +1,25 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import * as swaggerUi from 'swagger-ui-express';
 import { Request, Response } from 'express';
 
-const baseSwaggerDoc = {
-  openapi: '3.0.0',
-  info: {
-    title: 'PNC SPTS API',
-    version: '1.0.0',
-  },
-  components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-    },
-  },
-  paths: {
-    '/auth/register': {
-      post: {
-        summary: 'Register user',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  email: { type: 'string', example: 'newuser@example.com' },
-                  password: { type: 'string', example: 'Password123' },
-                  roleId: { type: 'string', example: 'role-id-here' },
-                },
-                required: ['email', 'password'],
-              },
-            },
-          },
-        },
-        responses: {
-          '201': { description: 'Created' },
-          '400': { description: 'Bad Request' },
-        },
-      },
-    },
-    '/auth/login': {
-      post: {
-        summary: 'Login user',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  email: { type: 'string', example: 'admin@example.com' },
-                  password: { type: 'string', example: 'password123' },
-                },
-                required: ['email', 'password'],
-              },
-            },
-          },
-        },
-        responses: {
-          '200': { description: 'OK' },
-          '401': { description: 'Unauthorized' },
-        },
-      },
-    },
-    '/auth/logout': {
-      post: {
-        summary: 'Logout user',
-        responses: {
-          '200': { description: 'OK' },
-        },
-      },
-    },
-    '/auth/refresh': {
-      post: {
-        summary: 'Refresh token',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  refresh_token: { type: 'string', example: 'your-refresh-token' },
-                },
-                required: ['refresh_token'],
-              },
-            },
-          },
-        },
-        responses: {
-          '200': { description: 'OK' },
-          '401': { description: 'Unauthorized' },
-          '422': { description: 'Validation Error' },
-        },
-      },
-    },
-    '/user/profile': {
-      get: {
-        summary: 'Get user profile',
-        security: [{ bearerAuth: [] }],
-        responses: {
-          '200': { description: 'User profile returned' },
-          '401': { description: 'Unauthorized' },
-        },
-      },
-    },
-  },
-};
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('app.port', 3000);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
-  const swaggerDoc = {
-    ...baseSwaggerDoc,
-    paths: Object.fromEntries(
-      Object.entries(baseSwaggerDoc.paths).map(([path, pathItem]) => [`/${apiPrefix}${path}`, pathItem]),
-    ),
-  };
 
   app.setGlobalPrefix(apiPrefix);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   app.getHttpAdapter().get(`/${apiPrefix}/docs-auto-auth.js`, (_req: Request, res: Response) => {
     res.type('application/javascript').send(`
       (function() {
@@ -147,7 +40,7 @@ async function bootstrap() {
           const headers = new Headers(requestInit.headers || {});
           const token = localStorage.getItem(TOKEN_KEY);
 
-          if (token && reqUrl.includes('/api/') && !reqUrl.includes('/api/auth/login') && !headers.has('Authorization')) {
+          if (token && reqUrl.includes('/api/') && !reqUrl.includes('/api/auth/login') && !reqUrl.includes('/api/auth/refresh') && !headers.has('Authorization')) {
             headers.set('Authorization', 'Bearer ' + token);
           }
 
@@ -170,14 +63,38 @@ async function bootstrap() {
       })();
     `);
   });
+
   app.use(
     `/${apiPrefix}/docs`,
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerDoc, {
+    swaggerUi.serveFiles(undefined, {
       swaggerOptions: {
         persistAuthorization: true,
+        url: `/${apiPrefix}/docs-json`,
       },
       customJs: `/${apiPrefix}/docs-auto-auth.js`,
+    }),
+    swaggerUi.setup(undefined, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        url: `/${apiPrefix}/docs-json`,
+      },
+      customJs: `/${apiPrefix}/docs-auto-auth.js`,
+    }),
+  );
+
+  app.use(
+    `/${apiPrefix}/auth/reference`,
+    swaggerUi.serveFiles(undefined, {
+      swaggerOptions: {
+        persistAuthorization: false,
+        url: `/${apiPrefix}/auth/reference-json`,
+      },
+    }),
+    swaggerUi.setup(undefined, {
+      swaggerOptions: {
+        persistAuthorization: false,
+        url: `/${apiPrefix}/auth/reference-json`,
+      },
     }),
   );
 

@@ -3,16 +3,12 @@ import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import {
-  ConflictException,
-  ForbiddenException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
+import { AuthLoginService } from './auth-login.service';
 
 // Mock data
 const mockUser = {
@@ -21,16 +17,13 @@ const mockUser = {
   password_hash: 'hashed-password',
   entity_type: 'teacher',
   is_active: true,
-  roles: [{ role: { name: 'teacher' } }],
+  status: 'ACTIVE',
+  deletedAt: null,
+  roles: [{ role: { name: 'TUTOR' } }],
 };
 
 const mockLoginDto: LoginDto = {
   email: 'teacher@example.com',
-  password: 'Password123!',
-};
-
-const mockRegisterDto: RegisterDto = {
-  email: 'newuser@example.com',
   password: 'Password123!',
 };
 
@@ -46,6 +39,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let repository: AuthRepository;
   let jwtService: JwtService;
+  let authLoginService: AuthLoginService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,7 +55,6 @@ describe('AuthService', () => {
             revokeRefreshTokenById: jest.fn(),
             revokeAllActiveRefreshTokensByUserId: jest.fn(),
             performTransaction: jest.fn(),
-            createUser: jest.fn(),
           },
         },
         {
@@ -81,12 +74,19 @@ describe('AuthService', () => {
             }),
           },
         },
+        {
+          provide: AuthLoginService,
+          useValue: {
+            validateCredentials: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     repository = module.get<AuthRepository>(AuthRepository);
     jwtService = module.get<JwtService>(JwtService);
+    authLoginService = module.get<AuthLoginService>(AuthLoginService);
   });
 
   it('should be defined', () => {
@@ -98,8 +98,7 @@ describe('AuthService', () => {
   // ---------------------------------------------------------------------------
   describe('login', () => {
     it('should return tokens for valid credentials', async () => {
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      jest.spyOn(authLoginService, 'validateCredentials').mockResolvedValue(mockUser as any);
       jest.spyOn(jwtService, 'signAsync').mockResolvedValue('test-token' as never);
       jest.spyOn(repository, 'performTransaction').mockResolvedValue(true as any);
 
@@ -111,8 +110,9 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for invalid email', async () => {
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(null);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      jest
+        .spyOn(authLoginService, 'validateCredentials')
+        .mockRejectedValue(new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }));
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }),
@@ -120,8 +120,9 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for incorrect password', async () => {
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      jest
+        .spyOn(authLoginService, 'validateCredentials')
+        .mockRejectedValue(new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }));
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }),
@@ -129,8 +130,9 @@ describe('AuthService', () => {
     });
 
     it('should throw ForbiddenException for inactive account', async () => {
-      const inactiveUser = { ...mockUser, is_active: false };
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(inactiveUser as any);
+      jest
+        .spyOn(authLoginService, 'validateCredentials')
+        .mockRejectedValue(new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }));
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }),
@@ -307,32 +309,18 @@ describe('AuthService', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // register
-  // ---------------------------------------------------------------------------
   describe('register', () => {
-    it('should create and return a new user', async () => {
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(null);
-      jest.spyOn(repository, 'createUser').mockResolvedValue({
-        id: 'new-user-id',
-        email: mockRegisterDto.email,
-      } as any);
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-password' as never);
-
-      const result = await service.register(mockRegisterDto);
-
-      expect(result).toEqual({ id: 'new-user-id', email: mockRegisterDto.email });
-      expect(repository.createUser).toHaveBeenCalledWith(
-        mockRegisterDto.email,
-        'hashed-password',
-      );
-    });
-
-    it('should throw ConflictException if email already exists', async () => {
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
-
-      await expect(service.register(mockRegisterDto)).rejects.toThrow(
-        new ConflictException({ error: 'USER_ALREADY_EXISTS' }),
+    it('should reject public registration', async () => {
+      await expect(
+        service.register({
+          email: 'newuser@example.com',
+          password: 'Password123!',
+        }),
+      ).rejects.toThrow(
+        new ForbiddenException({
+          error: 'REGISTRATION_DISABLED',
+          message: 'Public registration is not supported.',
+        }),
       );
     });
   });

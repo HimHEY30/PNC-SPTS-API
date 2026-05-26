@@ -2,7 +2,6 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
-  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -12,40 +11,20 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
+import { AuthLoginService } from './auth-login.service';
 
 @Injectable()
 export class AuthService {
-  private readonly DUMMY_PASSWORD_HASH =
-    '$2b$12$0/c.N.d.E.f.G.h.I.j.K.L.m.N.o.P.q.R.s.T.u.V.w.X.y.Z.a.B.c'; // A valid bcrypt hash
-
   constructor(
     private readonly authRepository: AuthRepository,
+    private readonly authLoginService: AuthLoginService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-
-    const user = await this.authRepository.findUserByEmail(email);
-
-    if (!user) {
-      await bcrypt.compare(password, this.DUMMY_PASSWORD_HASH);
-      throw new UnauthorizedException({ error: 'INVALID_CREDENTIALS' });
-    }
-
-    if (!user.is_active) {
-      throw new ForbiddenException({ error: 'ACCOUNT_INACTIVE' });
-    }
-
-    const isPasswordMatching = await bcrypt.compare(
-      password,
-      user.password_hash,
-    );
-
-    if (!isPasswordMatching) {
-      throw new UnauthorizedException({ error: 'INVALID_CREDENTIALS' });
-    }
+    const user = await this.authLoginService.validateCredentials(email, password);
 
     const roles = user.roles.map((userRole) => userRole.role.name);
     const { accessToken, refreshToken } = await this.generateTokenPair({
@@ -117,7 +96,7 @@ export class AuthService {
     }
 
     const user = await this.authRepository.findUserById(userId);
-    if (!user || !user.is_active) {
+    if (!user || !user.is_active || user.status !== 'ACTIVE' || user.deletedAt) {
       throw new UnauthorizedException({ error: 'INVALID_TOKEN' });
     }
 
@@ -146,19 +125,11 @@ export class AuthService {
     };
   }
 
-  async register(registerDto: RegisterDto) {
-    const { email, password } = registerDto;
-
-    const existing = await this.authRepository.findUserByEmail(email);
-    if (existing) {
-      throw new ConflictException({ error: 'USER_ALREADY_EXISTS' });
-    }
-
-    const passwordHash = await bcrypt.hash(password, 12);
-    const user = await this.authRepository.createUser(email, passwordHash);
-
-    // Return minimal user info (no password hash)
-    return { id: user.id, email: user.email };
+  async register(_registerDto: RegisterDto) {
+    throw new ForbiddenException({
+      error: 'REGISTRATION_DISABLED',
+      message: 'Public registration is not supported.',
+    });
   }
 
   async logout(userId: string, logoutDto: LogoutDto) {

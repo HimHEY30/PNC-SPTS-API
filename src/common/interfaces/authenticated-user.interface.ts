@@ -1,5 +1,5 @@
 export interface AuthenticatedUser {
-  user_id: number;
+  user_id: string;
   entity_type: string;
   roles: string[];
 }

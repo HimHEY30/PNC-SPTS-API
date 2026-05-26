@@ -1,0 +1,271 @@
+import { SwaggerDocument } from '../swagger.types';
+
+export const protectedSwaggerDocument: SwaggerDocument = {
+  openapi: '3.0.0',
+  info: {
+    title: 'PNC SPTS API',
+    version: '1.0.0',
+    description:
+      'Protected API documentation. This Swagger UI shows only endpoints that require an authenticated session. Public authentication endpoints such as login, refresh, and register are intentionally excluded from this document.',
+  },
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+  },
+  tags: [
+    { name: 'Authentication', description: 'Endpoints available after login' },
+    { name: 'Users', description: 'User management endpoints' },
+    { name: 'System', description: 'Protected system endpoints' },
+  ],
+  paths: {
+    '/auth/logout': {
+      post: {
+        summary: 'Logout current session',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  refresh_token: { type: 'string', example: 'your-refresh-token' },
+                },
+                required: ['refresh_token'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+        },
+        tags: ['Authentication'],
+      },
+    },
+    '/auth/logout-all': {
+      post: {
+        summary: 'Logout all sessions',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+        },
+        tags: ['Authentication'],
+      },
+    },
+    '/users': {
+      get: {
+        summary: 'List users',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+        },
+        tags: ['Users'],
+      },
+      post: {
+        summary: 'Create user',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  first_name: { type: 'string', example: 'John' },
+                  last_name: { type: 'string', example: 'Doe' },
+                  email: { type: 'string', example: 'john@example.com' },
+                  phone: { type: 'string', example: '012345678' },
+                  password: { type: 'string', example: 'TempPassword123!' },
+                  role: { type: 'string', example: 'TUTOR' },
+                },
+                required: ['first_name', 'last_name', 'email', 'password', 'role'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': { description: 'Created' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '409': { description: 'Conflict' },
+        },
+        tags: ['Users'],
+      },
+    },
+    '/users/profile': {
+      get: {
+        summary: 'Get authenticated user profile',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+        },
+        tags: ['Users'],
+      },
+    },
+    '/users/{id}': {
+      get: {
+        summary: 'Get user by id',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Users'],
+      },
+      patch: {
+        summary: 'Update user profile fields',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  first_name: { type: 'string', example: 'John' },
+                  last_name: { type: 'string', example: 'Doe' },
+                  phone: { type: 'string', example: '012345678' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Users'],
+      },
+      delete: {
+        summary: 'Soft delete user',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Users'],
+      },
+    },
+    '/users/{id}/role': {
+      patch: {
+        summary: 'Assign role',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  role: { type: 'string', example: 'ACADEMIC_MANAGER' },
+                },
+                required: ['role'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Users'],
+      },
+    },
+    '/users/{id}/status': {
+      patch: {
+        summary: 'Update user status',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', example: 'ACTIVE' },
+                },
+                required: ['status'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Users'],
+      },
+    },
+    '/health': {
+      get: {
+        summary: 'Health check',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+        },
+        tags: ['System'],
+      },
+    },
+  },
+};

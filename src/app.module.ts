@@ -10,11 +10,12 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { SwaggerController } from './modules/swagger/swagger.controller';
-import { UsersModule } from './modules/users.module';
+import { SwaggerModule } from './modules/swagger/swagger.module';
+import { UsersModule } from './modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { PermissionsGuard } from './common/guards/permissions.guard';
 
 @Module({
   imports: [
@@ -35,14 +36,19 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     DatabaseModule,
     AuthModule,
     HealthModule,
+    SwaggerModule,
     UsersModule,
   ],
-  controllers: [AppController, SwaggerController],
+  controllers: [AppController],
   providers: [
     AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
   ],
 })
