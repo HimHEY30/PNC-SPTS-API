@@ -145,4 +145,20 @@ describe('AuthController (e2e)', () => {
         });
       });
   });
+
+  describe('/api/auth/logout and /api/auth/logout-all (POST)', () => {
+    it('should reject unauthorized logout request', () => {
+      return request(app.getHttpServer())
+        .post('/api/auth/logout')
+        .send({ refresh_token: 'x' })
+        .expect(401);
+    });
+
+    it('should reject unauthorized logout-all request', () => {
+      return request(app.getHttpServer())
+        .post('/api/auth/logout-all')
+        .send({})
+        .expect(401);
+    });
+  });
 });

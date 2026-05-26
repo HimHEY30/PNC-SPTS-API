@@ -114,4 +114,30 @@ export class AuthRepository {
       }),
     ]);
   }
+
+  async revokeRefreshTokenById(tokenId: string) {
+    return this.prisma.refreshToken.updateMany({
+      where: {
+        id: tokenId,
+        revoked_at: null as any,
+      } as any,
+      data: {
+        revoked: true,
+        revoked_at: new Date(),
+      } as any,
+    });
+  }
+
+  async revokeAllActiveRefreshTokensByUserId(userId: string) {
+    return this.prisma.refreshToken.updateMany({
+      where: {
+        user_id: userId,
+        revoked_at: null as any,
+      } as any,
+      data: {
+        revoked: true,
+        revoked_at: new Date(),
+      } as any,
+    });
+  }
 }

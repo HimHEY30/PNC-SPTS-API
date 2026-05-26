@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { LogoutDto } from './dto/logout.dto';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
 
@@ -158,6 +159,29 @@ export class AuthService {
 
     // Return minimal user info (no password hash)
     return { id: user.id, email: user.email };
+  }
+
+  async logout(userId: string, logoutDto: LogoutDto) {
+    const refreshToken = logoutDto?.refresh_token;
+    if (!refreshToken) {
+      throw new Error('VALIDATION_ERROR');
+    }
+
+    const refreshTokens = await this.authRepository.findRefreshTokensByUserId(userId);
+    for (const storedToken of refreshTokens) {
+      const isMatch = await bcrypt.compare(refreshToken, storedToken.token_hash);
+      if (isMatch) {
+        await this.authRepository.revokeRefreshTokenById(storedToken.id);
+        return { message: 'OK' };
+      }
+    }
+
+    return { message: 'OK' };
+  }
+
+  async logoutAll(userId: string) {
+    await this.authRepository.revokeAllActiveRefreshTokensByUserId(userId);
+    return { message: 'OK' };
   }
 
   private async generateTokenPair(accessTokenPayload: {

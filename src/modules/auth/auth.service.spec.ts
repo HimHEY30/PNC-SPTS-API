@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { LogoutDto } from './dto/logout.dto';
 
 // Mock data
 const mockUser = {
@@ -37,6 +38,10 @@ const mockRefreshTokenDto: RefreshTokenDto = {
   refresh_token: 'valid-refresh-token',
 };
 
+const mockLogoutDto: LogoutDto = {
+  refresh_token: 'valid-refresh-token',
+};
+
 describe('AuthService', () => {
   let service: AuthService;
   let repository: AuthRepository;
@@ -53,6 +58,8 @@ describe('AuthService', () => {
             findUserById: jest.fn(),
             findRefreshTokensByUserId: jest.fn(),
             rotateRefreshToken: jest.fn(),
+            revokeRefreshTokenById: jest.fn(),
+            revokeAllActiveRefreshTokensByUserId: jest.fn(),
             performTransaction: jest.fn(),
             createUser: jest.fn(),
           },
@@ -246,6 +253,57 @@ describe('AuthService', () => {
       await expect(service.refresh({ refresh_token: '' })).rejects.toThrow(
         new Error('VALIDATION_ERROR'),
       );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // logout / logout-all
+  // ---------------------------------------------------------------------------
+  describe('logout', () => {
+    it('should revoke the current refresh token and return 200 payload', async () => {
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
+        { id: 'rt-1', token_hash: 'stored-hash' },
+      ] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      const revokeSpy = jest.spyOn(repository, 'revokeRefreshTokenById').mockResolvedValue({ count: 1 } as any);
+
+      const result = await service.logout('user-id', mockLogoutDto);
+
+      expect(revokeSpy).toHaveBeenCalledWith('rt-1');
+      expect(result).toEqual({ message: 'OK' });
+    });
+
+    it('should return 200 payload when token is already revoked/non-active (idempotent)', async () => {
+      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
+        { id: 'rt-1', token_hash: 'stored-hash' },
+      ] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      jest.spyOn(repository, 'revokeRefreshTokenById').mockResolvedValue({ count: 0 } as any);
+
+      const result = await service.logout('user-id', mockLogoutDto);
+      expect(result).toEqual({ message: 'OK' });
+    });
+  });
+
+  describe('logoutAll', () => {
+    it('should revoke all active refresh tokens for the user', async () => {
+      const revokeAllSpy = jest
+        .spyOn(repository, 'revokeAllActiveRefreshTokensByUserId')
+        .mockResolvedValue({ count: 2 } as any);
+
+      const result = await service.logoutAll('user-id');
+
+      expect(revokeAllSpy).toHaveBeenCalledWith('user-id');
+      expect(result).toEqual({ message: 'OK' });
+    });
+
+    it('should return 200 payload even when no active sessions exist', async () => {
+      jest
+        .spyOn(repository, 'revokeAllActiveRefreshTokensByUserId')
+        .mockResolvedValue({ count: 0 } as any);
+
+      const result = await service.logoutAll('user-id');
+      expect(result).toEqual({ message: 'OK' });
     });
   });
 
