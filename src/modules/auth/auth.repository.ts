@@ -18,6 +18,17 @@ export class AuthRepository {
     });
   }
 
+  async createUser(email: string, passwordHash: string) {
+    return this.prisma.authUser.create({
+      data: {
+        email,
+        password_hash: passwordHash,
+        entity_type: 'teacher',
+        is_active: true,
+      },
+    });
+  }
+
   async createRefreshToken(
     userId: string,
     tokenHash: string,

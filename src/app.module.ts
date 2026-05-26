@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { appConfig, appConfigValidationSchema } from './config/app.config';
@@ -12,6 +12,9 @@ import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SwaggerController } from './modules/swagger/swagger.controller';
 import { UsersModule } from './modules/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -25,12 +28,22 @@ import { UsersModule } from './modules/users.module';
         ...redisConfigValidationSchema,
       }),
     }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: parseInt(process.env.JWT_EXPIRATION) || 900 },
+    }),
     DatabaseModule,
     AuthModule,
     HealthModule,
     UsersModule,
   ],
   controllers: [AppController, SwaggerController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

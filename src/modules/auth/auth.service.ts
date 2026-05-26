@@ -2,10 +2,12 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
 
@@ -82,5 +84,20 @@ export class AuthService {
       refresh_token: refreshToken,
       expires_in: 900,
     };
+  }
+
+  async register(registerDto: RegisterDto) {
+    const { email, password } = registerDto;
+
+    const existing = await this.authRepository.findUserByEmail(email);
+    if (existing) {
+      throw new ConflictException({ error: 'USER_ALREADY_EXISTS' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await this.authRepository.createUser(email, passwordHash);
+
+    // Return minimal user info (no password hash)
+    return { id: user.id, email: user.email };
   }
 }

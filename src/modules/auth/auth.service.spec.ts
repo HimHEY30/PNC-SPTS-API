@@ -4,11 +4,13 @@ import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
+  ConflictException,
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 // Mock data
 const mockUser = {
@@ -22,6 +24,11 @@ const mockUser = {
 
 const mockLoginDto: LoginDto = {
   email: 'teacher@example.com',
+  password: 'Password123!',
+};
+
+const mockRegisterDto: RegisterDto = {
+  email: 'newuser@example.com',
   password: 'Password123!',
 };
 
@@ -39,6 +46,7 @@ describe('AuthService', () => {
           useValue: {
             findUserByEmail: jest.fn(),
             performTransaction: jest.fn(),
+            createUser: jest.fn(),
           },
         },
         {
@@ -69,6 +77,9 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
+  // ---------------------------------------------------------------------------
+  // login
+  // ---------------------------------------------------------------------------
   describe('login', () => {
     it('should return tokens for valid credentials', async () => {
       jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
@@ -107,6 +118,36 @@ describe('AuthService', () => {
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }),
+      );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // register
+  // ---------------------------------------------------------------------------
+  describe('register', () => {
+    it('should create and return a new user', async () => {
+      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(null);
+      jest.spyOn(repository, 'createUser').mockResolvedValue({
+        id: 'new-user-id',
+        email: mockRegisterDto.email,
+      } as any);
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-password' as never);
+
+      const result = await service.register(mockRegisterDto);
+
+      expect(result).toEqual({ id: 'new-user-id', email: mockRegisterDto.email });
+      expect(repository.createUser).toHaveBeenCalledWith(
+        mockRegisterDto.email,
+        'hashed-password',
+      );
+    });
+
+    it('should throw ConflictException if email already exists', async () => {
+      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
+
+      await expect(service.register(mockRegisterDto)).rejects.toThrow(
+        new ConflictException({ error: 'USER_ALREADY_EXISTS' }),
       );
     });
   });

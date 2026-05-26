@@ -7,12 +7,27 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Public()
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  async register(@Body() registerDto: RegisterDto) {
+    try {
+      return await this.authService.register(registerDto);
+    } catch (error) {
+      if (error.message === 'VALIDATION_ERROR') {
+        throw new UnprocessableEntityException({ error: 'VALIDATION_ERROR' });
+      }
+      throw error;
+    }
+  }
 
   @Public()
   @Post('login')
