@@ -20,6 +20,7 @@ export const protectedSwaggerDocument: SwaggerDocument = {
   tags: [
     { name: 'Authentication', description: 'Endpoints available after login' },
     { name: 'Users', description: 'User management endpoints' },
+    { name: 'Roles & Permissions', description: 'Roles and permissions management endpoints' },
     { name: 'System', description: 'Protected system endpoints' },
   ],
   paths: {
@@ -254,6 +255,179 @@ export const protectedSwaggerDocument: SwaggerDocument = {
           '404': { description: 'Not Found' },
         },
         tags: ['Users'],
+      },
+    },
+    '/roles': {
+      get: {
+        summary: 'List all roles',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+        },
+        tags: ['Roles & Permissions'],
+      },
+      post: {
+        summary: 'Create a custom role',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'CUSTOM_ROLE' },
+                  description: { type: 'string', example: 'Custom role description' },
+                  permissions: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    example: ['user.read', 'student.read'],
+                  },
+                },
+                required: ['name'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': { description: 'Created' },
+          '400': { description: 'Bad Request' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '409': { description: 'Conflict' },
+        },
+        tags: ['Roles & Permissions'],
+      },
+    },
+    '/roles/{id}': {
+      get: {
+        summary: 'Get role by id or name',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Roles & Permissions'],
+      },
+      patch: {
+        summary: 'Update role',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  description: { type: 'string', example: 'Updated description' },
+                  permissions: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    example: ['user.read'],
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Roles & Permissions'],
+      },
+      delete: {
+        summary: 'Delete role',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+          '400': { description: 'Bad Request' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Roles & Permissions'],
+      },
+    },
+    '/roles/{id}/permissions': {
+      post: {
+        summary: 'Assign permissions to role',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  permissions: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    example: ['user.read', 'user.create'],
+                  },
+                },
+                required: ['permissions'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Not Found' },
+        },
+        tags: ['Roles & Permissions'],
+      },
+    },
+    '/permissions': {
+      get: {
+        summary: 'List all permissions',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+        },
+        tags: ['Roles & Permissions'],
       },
     },
     '/health': {
