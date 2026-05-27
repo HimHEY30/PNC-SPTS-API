@@ -60,6 +60,7 @@ export const protectedSwaggerDocument: SwaggerDocument = {
         tags: ['Authentication'],
       },
     },
+   
     '/users': {
       get: {
         summary: 'List users',

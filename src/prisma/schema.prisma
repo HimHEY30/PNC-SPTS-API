@@ -17,14 +17,14 @@ datasource db {
 // =============================================================================
 
 model AuthUser {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   password_hash String
   entity_type   String // e.g., 'teacher', 'manager'
   first_name    String
   last_name     String
-  phone         String?   @unique
-  is_active     Boolean   @default(true)
+  phone         String?        @unique
+  is_active     Boolean        @default(true)
   status        AuthUserStatus @default(ACTIVE)
   last_login_at DateTime?
   deletedAt     DateTime?
@@ -32,16 +32,17 @@ model AuthUser {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roles         UserRole[]
-  refreshTokens RefreshToken[]
-  teacher       Teacher?
+  roles               UserRole[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[] @relation("UserPasswordResetTokens")
+  teacher             Teacher?
 
   @@map("auth_users")
 }
 
 model Role {
-  id          String     @id @default(cuid())
-  name        String     @unique
+  id          String       @id @default(cuid())
+  name        String       @unique
   description String?
   users       UserRole[]
   permissions Permission[]
@@ -64,17 +65,43 @@ model Permission {
 }
 
 model RefreshToken {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   token_hash String
   user_id    String
-  user       AuthUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       AuthUser  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   expires_at DateTime
-  revoked    Boolean  @default(false)
+  revoked    Boolean   @default(false)
   revoked_at DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@map("refresh_tokens")
+}
+
+model OtpToken {
+  id         String    @id @default(cuid())
+  email      String
+  otp_hash   String
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  @@unique([email, otp_hash])
+  @@index([email])
+}
+
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  user_id    String
+  token_hash String
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  user AuthUser @relation("UserPasswordResetTokens", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("password_reset_tokens")
 }
 
 // =============================================================================
@@ -82,30 +109,30 @@ model RefreshToken {
 // =============================================================================
 
 model Student {
-  id              String    @id @default(cuid())
-  studentCode     String    @unique
-  firstName       String
-  lastName        String
-  gender          Gender?
-  dateOfBirth     DateTime?
-  placeOfBirth    String?
-  phone           String?
-  email           String?   @unique
-  profileImage    String?
-  status          StudentStatus @default(active)
-  classId         String?
-  class           Class?    @relation(fields: [classId], references: [id])
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
-  createdBy       String?
-  updatedBy       String?
+  id           String        @id @default(cuid())
+  studentCode  String        @unique
+  firstName    String
+  lastName     String
+  gender       Gender?
+  dateOfBirth  DateTime?
+  placeOfBirth String?
+  phone        String?
+  email        String?       @unique
+  profileImage String?
+  status       StudentStatus @default(active)
+  classId      String?
+  class        Class?        @relation(fields: [classId], references: [id])
 
-  followUpCases     FollowUpCase[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+
+  followUpCases      FollowUpCase[]
   studentEvaluations StudentEvaluation[]
-  tutorAssignments  TutorAssignment[]
-  studentScores     StudentScore[]
+  tutorAssignments   TutorAssignment[]
+  studentScores      StudentScore[]
 
   @@index([classId])
 }
@@ -120,14 +147,14 @@ model Teacher {
   userId      String   @unique
   user        AuthUser @relation(fields: [userId], references: [id])
 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-  createdBy    String?
-  updatedBy    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
 
   teacherSubjects      TeacherSubject[]
-  openedFollowUpCases  FollowUpCase[]    @relation("OpenedByTeacher")
+  openedFollowUpCases  FollowUpCase[]      @relation("OpenedByTeacher")
   followUpReports      FollowUpReport[]
   removedFollowUpCases FollowUpRemoval[]   @relation("RemovedByTeacher")
   studentEvaluations   StudentEvaluation[]
@@ -137,13 +164,13 @@ model Teacher {
 }
 
 model Class {
-  id        String    @id @default(cuid())
+  id        String @id @default(cuid())
   name      String
   batchYear Int
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   students        Student[]
   teacherSubjects TeacherSubject[]
 
@@ -151,12 +178,12 @@ model Class {
 }
 
 model Term {
-  id            String   @id @default(cuid())
-  academicYear  String
-  semester      String
-  startDate     DateTime
-  endDate       DateTime
-  status        TermStatus @default(active)
+  id           String     @id @default(cuid())
+  academicYear String
+  semester     String
+  startDate    DateTime
+  endDate      DateTime
+  status       TermStatus @default(active)
 
   teacherSubjects    TeacherSubject[]
   followUpCases      FollowUpCase[]
@@ -167,11 +194,11 @@ model Term {
 }
 
 model Subject {
-  id       String   @id @default(cuid())
-  code     String   @unique
-  name     String
-  credit   Int
-  
+  id     String @id @default(cuid())
+  code   String @unique
+  name   String
+  credit Int
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -180,16 +207,16 @@ model Subject {
 }
 
 model TeacherSubject {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   teacherId String
   subjectId String
   termId    String
   classId   String
 
-  teacher   Teacher @relation(fields: [teacherId], references: [id])
-  subject   Subject @relation(fields: [subjectId], references: [id])
-  term      Term    @relation(fields: [termId], references: [id])
-  class     Class   @relation(fields: [classId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
 
   @@unique([teacherId, subjectId, termId, classId])
   @@index([teacherId])
@@ -214,20 +241,20 @@ model FollowUpCase {
   openedDate        DateTime      @default(now())
   closedDate        DateTime?
 
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  deletedAt         DateTime?
-  createdBy         String?
-  updatedBy         String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
 
-  student         Student             @relation(fields: [studentId], references: [id])
-  openedByTeacher Teacher             @relation("OpenedByTeacher", fields: [openedByTeacherId], references: [id])
-  term            Term                @relation(fields: [termId], references: [id])
-  status          FollowUpStatus      @relation(fields: [statusId], references: [id])
-  
-  caseTypeMap     FollowUpCaseTypeMap[]
-  reports         FollowUpReport[]
-  removals        FollowUpRemoval[]
+  student         Student        @relation(fields: [studentId], references: [id])
+  openedByTeacher Teacher        @relation("OpenedByTeacher", fields: [openedByTeacherId], references: [id])
+  term            Term           @relation(fields: [termId], references: [id])
+  status          FollowUpStatus @relation(fields: [statusId], references: [id])
+
+  caseTypeMap FollowUpCaseTypeMap[]
+  reports     FollowUpReport[]
+  removals    FollowUpRemoval[]
 
   @@index([studentId])
   @@index([openedByTeacherId])
@@ -258,8 +285,8 @@ model FollowUpCaseTypeMap {
 }
 
 model FollowUpStatus {
-  id        String   @id @default(cuid())
-  name      String   @unique
+  id        String  @id @default(cuid())
+  name      String  @unique
   colorCode String?
 
   followUpCases FollowUpCase[]
@@ -273,12 +300,12 @@ model FollowUpReport {
   progressStatus String?
   observation    String?
   nextAction     String?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
 
-  followUpCase FollowUpCase @relation(fields: [followUpCaseId], references: [id])
-  teacher      Teacher      @relation(fields: [teacherId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  followUpCase FollowUpCase         @relation(fields: [followUpCaseId], references: [id])
+  teacher      Teacher              @relation(fields: [teacherId], references: [id])
   attachments  FollowUpAttachment[]
 
   @@index([followUpCaseId])
@@ -286,14 +313,14 @@ model FollowUpReport {
 }
 
 model FollowUpAttachment {
-  id        String   @id @default(cuid())
-  reportId  String
-  fileName  String
-  filePath  String
-  fileType  String
-  fileSize  Int
+  id              String @id @default(cuid())
+  reportId        String
+  fileName        String
+  filePath        String
+  fileType        String
+  fileSize        Int
   storageProvider String @default("local")
-  
+
   uploadedAt DateTime @default(now())
 
   report FollowUpReport @relation(fields: [reportId], references: [id])
@@ -302,14 +329,14 @@ model FollowUpAttachment {
 }
 
 model FollowUpRemoval {
-  id                  String   @id @default(cuid())
-  followUpCaseId      String
-  removedByTeacherId  String
-  removalReason       String?
-  removalDate         DateTime @default(now())
+  id                 String   @id @default(cuid())
+  followUpCaseId     String
+  removedByTeacherId String
+  removalReason      String?
+  removalDate        DateTime @default(now())
 
-  followUpCase      FollowUpCase @relation(fields: [followUpCaseId], references: [id])
-  removedByTeacher  Teacher      @relation("RemovedByTeacher", fields: [removedByTeacherId], references: [id])
+  followUpCase     FollowUpCase @relation(fields: [followUpCaseId], references: [id])
+  removedByTeacher Teacher      @relation("RemovedByTeacher", fields: [removedByTeacherId], references: [id])
 
   @@index([followUpCaseId])
   @@index([removedByTeacherId])
@@ -320,20 +347,20 @@ model FollowUpRemoval {
 // =============================================================================
 
 model EvaluationCategory {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
-  isActive    Boolean  @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   studentEvaluations StudentEvaluation[]
 }
 
 model RatingScale {
-  id          String    @id @default(cuid())
-  name        String    @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   minValue    Decimal
   maxValue    Decimal
   description String?
@@ -342,21 +369,21 @@ model RatingScale {
 }
 
 model StudentEvaluation {
-  id              String   @id @default(cuid())
-  studentId       String
-  teacherId       String
-  termId          String
-  categoryId      String
-  ratingScaleId   String
-  score           Decimal
-  comment         String?
-  evaluatedAt     DateTime @default(now())
+  id            String   @id @default(cuid())
+  studentId     String
+  teacherId     String
+  termId        String
+  categoryId    String
+  ratingScaleId String
+  score         Decimal
+  comment       String?
+  evaluatedAt   DateTime @default(now())
 
-  student       Student            @relation(fields: [studentId], references: [id])
-  teacher       Teacher            @relation(fields: [teacherId], references: [id])
-  term          Term               @relation(fields: [termId], references: [id])
-  category      EvaluationCategory @relation(fields: [categoryId], references: [id])
-  ratingScale   RatingScale        @relation(fields: [ratingScaleId], references: [id])
+  student     Student            @relation(fields: [studentId], references: [id])
+  teacher     Teacher            @relation(fields: [teacherId], references: [id])
+  term        Term               @relation(fields: [termId], references: [id])
+  category    EvaluationCategory @relation(fields: [categoryId], references: [id])
+  ratingScale RatingScale        @relation(fields: [ratingScaleId], references: [id])
 
   @@index([studentId])
   @@index([teacherId])
@@ -370,20 +397,20 @@ model StudentEvaluation {
 // =============================================================================
 
 model TutorAssignment {
-  id                String   @id @default(cuid())
-  studentId         String
-  teacherId         String
+  id                  String                @id @default(cuid())
+  studentId           String
+  teacherId           String
   assignedByTeacherId String
-  assignedDate      DateTime @default(now())
-  endDate           DateTime?
-  status            TutorAssignmentStatus @default(active)
-  notes             String?
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  assignedDate        DateTime              @default(now())
+  endDate             DateTime?
+  status              TutorAssignmentStatus @default(active)
+  notes               String?
 
-  student   Student @relation(fields: [studentId], references: [id])
-  teacher   Teacher @relation("Tutor", fields: [teacherId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student    Student @relation(fields: [studentId], references: [id])
+  teacher    Teacher @relation("Tutor", fields: [teacherId], references: [id])
   assignedBy Teacher @relation("AssignedBy", fields: [assignedByTeacherId], references: [id])
 
   @@index([studentId])
@@ -469,4 +496,3 @@ enum AuthUserStatus {
   SUSPENDED
   LOCKED
 }
-

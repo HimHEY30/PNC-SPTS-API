@@ -144,4 +144,37 @@ export class AuthRepository {
       } as any,
     });
   }
+
+  async updatePassword(userId: string, passwordHash: string) {
+    return this.prisma.authUser.update({
+      where: { id: userId },
+      data: { password_hash: passwordHash },
+    });
+  }
+
+  async createPasswordResetToken(userId: string, tokenHash: string, expiresAt: Date) {
+    return this.prisma.passwordResetToken.create({
+      data: {
+        user_id: userId,
+        token_hash: tokenHash,
+        expires_at: expiresAt,
+      },
+    });
+  }
+
+  async findUnusedResetTokensByUserId(userId: string) {
+    return this.prisma.passwordResetToken.findMany({
+      where: {
+        user_id: userId,
+        used_at: null,
+      },
+    });
+  }
+
+  async markResetTokenAsUsed(tokenId: string) {
+    return this.prisma.passwordResetToken.update({
+      where: { id: tokenId },
+      data: { used_at: new Date() },
+    });
+  }
 }

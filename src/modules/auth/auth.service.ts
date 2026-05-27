@@ -9,9 +9,13 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
 import { AuthLoginService } from './auth-login.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -177,5 +181,101 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
+    const user = await this.authRepository.findUserById(userId);
+    if (!user) {
+      throw new UnauthorizedException({ error: 'USER_NOT_FOUND' });
+    }
+
+    const isMatch = await bcrypt.compare(changePasswordDto.currentPassword, user.password_hash);
+    if (!isMatch) {
+      throw new UnauthorizedException({ error: 'INVALID_CURRENT_PASSWORD' });
+    }
+
+    const newPasswordHash = await bcrypt.hash(changePasswordDto.newPassword, 12);
+    await this.authRepository.updatePassword(userId, newPasswordHash);
+
+    return { message: 'Password changed successfully' };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.authRepository.findUserByEmail(forgotPasswordDto.email);
+    
+    // Always return the same response to prevent email enumeration
+    const successResponse = { message: 'If the account exists, a password reset link has been sent.' };
+    
+    if (!user) {
+      return successResponse;
+    }
+
+    // Embed userId in the raw token to allow O(1) lookup during reset
+    const randomHex = crypto.randomBytes(32).toString('hex');
+    const rawToken = `${user.id}:${randomHex}`;
+    
+    const tokenHash = await bcrypt.hash(rawToken, 10);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.authRepository.createPasswordResetToken(user.id, tokenHash, expiresAt);
+
+    // TODO: Implement actual email sending here
+    // For now, log the token to the console
+    console.log(`[PASSWORD RESET] Link generated for ${user.email}. Token: ${rawToken}`);
+
+    return successResponse;
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { token, newPassword } = resetPasswordDto;
+
+    const parts = token.split(':');
+    if (parts.length !== 2) {
+      throw new UnauthorizedException({ error: 'INVALID_RESET_TOKEN' });
+    }
+
+    const userId = parts[0];
+    const user = await this.authRepository.findUserById(userId);
+    if (!user) {
+      throw new UnauthorizedException({ error: 'INVALID_RESET_TOKEN' });
+    }
+
+    // Find all unused tokens for this user
+    const unusedTokens = await this.authRepository.findUnusedResetTokensByUserId(userId);
+    if (unusedTokens.length === 0) {
+      throw new UnauthorizedException({ error: 'INVALID_RESET_TOKEN' });
+    }
+
+    // Find the matching token
+    let matchedToken = null;
+    for (const dbToken of unusedTokens) {
+      const isMatch = await bcrypt.compare(token, dbToken.token_hash);
+      if (isMatch) {
+        matchedToken = dbToken;
+        break;
+      }
+    }
+
+    if (!matchedToken) {
+      throw new UnauthorizedException({ error: 'INVALID_RESET_TOKEN' });
+    }
+
+    if (new Date(matchedToken.expires_at).getTime() < Date.now()) {
+      throw new UnauthorizedException({ error: 'RESET_TOKEN_EXPIRED' });
+    }
+
+    // Validation passed, perform the reset
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+    
+    // Update password
+    await this.authRepository.updatePassword(userId, newPasswordHash);
+    
+    // Mark token as used
+    await this.authRepository.markResetTokenAsUsed(matchedToken.id);
+    
+    // Revoke all active sessions
+    await this.authRepository.revokeAllActiveRefreshTokensByUserId(userId);
+
+    return { message: 'Password reset successfully' };
   }
 }

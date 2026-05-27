@@ -85,5 +85,55 @@ export const publicAuthSwaggerDocument: SwaggerDocument = {
         tags: ['Public Authentication'],
       },
     },
+    '/auth/forgot-password': {
+      post: {
+        summary: 'Request password reset link',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: { type: 'string', example: 'user@example.com' },
+                },
+                required: ['email'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '422': { description: 'Validation Error' },
+        },
+        tags: ['Public Authentication'],
+      },
+    },
+    '/auth/reset-password': {
+      post: {
+        summary: 'Reset password with token',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  token: { type: 'string', example: 'reset-token-here' },
+                  newPassword: { type: 'string', example: 'NewPassword123!' },
+                },
+                required: ['token', 'newPassword'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'OK' },
+          '401': { description: 'Invalid or expired token' },
+          '422': { description: 'Validation Error' },
+        },
+        tags: ['Public Authentication'],
+      },
+    },
   },
 };
