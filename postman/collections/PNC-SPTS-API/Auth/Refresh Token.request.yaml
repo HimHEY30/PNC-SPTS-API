@@ -1,0 +1,59 @@
+$kind: http-request
+name: Refresh Token
+method: POST
+url: '{{baseUrl}}/auth/refresh'
+description: Exchange a refresh token for a new access token.
+auth:
+  type: noauth
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "refresh_token": "{{refreshToken}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Response contains new access_token', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('access_token');
+        pm.expect(data.access_token).to.be.a('string').and.not.empty;
+      });
+
+      pm.test('Response contains new refresh_token', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('refresh_token');
+        pm.expect(data.refresh_token).to.be.a('string').and.not.empty;
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      // Save new tokens
+      if (pm.response.code === 200) {
+        const data = pm.response.json().data || pm.response.json();
+        if (data.access_token) {
+          pm.collectionVariables.set('accessToken', data.access_token);
+        }
+        if (data.refresh_token) {
+          pm.collectionVariables.set('refreshToken', data.refresh_token);
+        }
+      }

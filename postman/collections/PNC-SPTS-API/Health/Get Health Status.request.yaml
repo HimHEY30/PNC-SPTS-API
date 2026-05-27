@@ -1,0 +1,37 @@
+$kind: http-request
+name: Get Health Status
+method: GET
+url: '{{baseUrl}}/health'
+description: Check the health of the API server, database, and Redis connection.
+auth:
+  type: noauth
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response has status: ok', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('status');
+        pm.expect(json.status).to.eql('ok');
+      });
+
+      pm.test('Database health check is present', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('info');
+        pm.expect(json.info).to.have.property('database');
+      });
+
+      pm.test('Redis health check is present', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('info');
+        pm.expect(json.info).to.have.property('redis');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

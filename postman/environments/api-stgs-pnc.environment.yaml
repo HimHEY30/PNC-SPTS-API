@@ -1,0 +1,6 @@
+name: api-stgs-pnc
+values:
+  - key: base_url
+    value: ''
+  - key: token
+    value: ''

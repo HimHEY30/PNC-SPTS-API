@@ -1,0 +1,21 @@
+$kind: collection
+name: PNC-SPTS API
+description: |-
+  PNC Sports Tracking System API. Base URL: {{baseUrl}}
+
+  Authentication: Most endpoints require a Bearer token. Use the Login endpoint to obtain an access_token, then set it as the {{accessToken}} variable.
+variables:
+  - key: baseUrl
+    value: 'http://localhost:3000/api'
+    description: Base URL of the API server
+  - key: accessToken
+    value: ''
+    description: JWT access token obtained from login
+  - key: refreshToken
+    value: ''
+    description: JWT refresh token obtained from login
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'

@@ -1,0 +1,61 @@
+$kind: http-request
+name: Create User
+method: POST
+url: '{{baseUrl}}/users'
+description: Create a new user. Requires SUPER_ADMIN or ADMIN role with user.create permission.
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "password": "Password@123",
+      "role": "STAFF"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 201', function () {
+        pm.response.to.have.status(201);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 201);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Created user has required fields', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+        pm.expect(data).to.have.property('first_name');
+        pm.expect(data).to.have.property('last_name');
+        pm.expect(data).to.have.property('email');
+      });
+
+      pm.test('Created user does not expose password', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.not.have.property('password');
+        pm.expect(data).to.not.have.property('password_hash');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      // Save created user ID for subsequent requests
+      if (pm.response.code === 201) {
+        const data = pm.response.json().data;
+        if (data && data.id) {
+          pm.collectionVariables.set('userId', data.id);
+        }
+      }

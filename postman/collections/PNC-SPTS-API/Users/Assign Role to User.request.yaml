@@ -1,0 +1,43 @@
+$kind: http-request
+name: Assign Role to User
+method: PATCH
+url: '{{baseUrl}}/users/:id/role'
+description: Assign or change a user's role. Requires SUPER_ADMIN or ADMIN role with user.assign_role permission.
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: id
+    value: 'user-id-here'
+    description: The user's UUID
+body:
+  type: json
+  content: |-
+    {
+      "role": "ADMIN"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('User has role field', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

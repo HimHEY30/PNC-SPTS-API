@@ -1,0 +1,33 @@
+$kind: http-request
+name: Logout
+method: POST
+url: '{{baseUrl}}/auth/logout'
+description: Revoke the current refresh token. Requires authentication.
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "refresh_token": "{{refreshToken}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

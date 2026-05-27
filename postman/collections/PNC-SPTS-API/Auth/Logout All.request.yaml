@@ -1,0 +1,24 @@
+$kind: http-request
+name: Logout All
+method: POST
+url: '{{baseUrl}}/auth/logout-all'
+description: Revoke all refresh tokens for the authenticated user (logout from all devices).
+order: 4000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

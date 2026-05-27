@@ -1,0 +1,59 @@
+$kind: http-request
+name: Create Role
+method: POST
+url: '{{baseUrl}}/roles'
+description: |-
+  Create a new role. Name must be UPPERCASE with underscores (e.g. CUSTOM_ROLE).
+  Requires role.create permission.
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "CUSTOM_ROLE",
+      "description": "A custom role for specific access",
+      "permissions": ["user.read", "role.read"]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 201', function () {
+        pm.response.to.have.status(201);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 201);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Created role has required fields', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+        pm.expect(data).to.have.property('name');
+      });
+
+      pm.test('Role name is uppercase', function () {
+        const data = pm.response.json().data;
+        if (data && data.name) {
+          pm.expect(data.name).to.match(/^[A-Z][A-Z0-9_]*$/);
+        }
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      // Save created role ID for subsequent requests
+      if (pm.response.code === 201) {
+        const data = pm.response.json().data;
+        if (data && data.id) {
+          pm.collectionVariables.set('roleId', data.id);
+        }
+      }

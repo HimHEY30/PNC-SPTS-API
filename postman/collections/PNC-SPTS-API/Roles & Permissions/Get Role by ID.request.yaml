@@ -1,0 +1,35 @@
+$kind: http-request
+name: Get Role by ID
+method: GET
+url: '{{baseUrl}}/roles/:id'
+description: Get a single role by its ID. Requires role.read permission.
+order: 4000
+pathVariables:
+  - key: id
+    value: 'role-id-here'
+    description: The role's UUID
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Role has required fields', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+        pm.expect(data).to.have.property('name');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

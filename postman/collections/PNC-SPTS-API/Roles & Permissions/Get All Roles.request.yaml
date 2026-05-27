@@ -1,0 +1,40 @@
+$kind: http-request
+name: Get All Roles
+method: GET
+url: '{{baseUrl}}/roles'
+description: List all roles. Requires role.read permission.
+order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Data is an array', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.be.an('array');
+      });
+
+      pm.test('Each role has required fields', function () {
+        const data = pm.response.json().data;
+        if (data.length > 0) {
+          data.forEach(function (role) {
+            pm.expect(role).to.have.property('id');
+            pm.expect(role).to.have.property('name');
+          });
+        }
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

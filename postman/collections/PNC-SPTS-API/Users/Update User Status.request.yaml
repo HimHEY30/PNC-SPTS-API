@@ -1,0 +1,47 @@
+$kind: http-request
+name: Update User Status
+method: PATCH
+url: '{{baseUrl}}/users/:id/status'
+description: |-
+  Activate or deactivate a user account. Status must be one of: ACTIVE, INACTIVE, SUSPENDED, LOCKED.
+  Requires SUPER_ADMIN or ADMIN role with user.update permission.
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: id
+    value: 'user-id-here'
+    description: The user's UUID
+body:
+  type: json
+  content: |-
+    {
+      "status": "ACTIVE"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('User status is a valid value', function () {
+        const data = pm.response.json().data;
+        if (data && data.status) {
+          pm.expect(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'LOCKED']).to.include(data.status);
+        }
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

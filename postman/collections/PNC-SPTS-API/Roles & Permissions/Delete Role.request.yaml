@@ -1,0 +1,28 @@
+$kind: http-request
+name: Delete Role
+method: DELETE
+url: '{{baseUrl}}/roles/:id'
+description: Delete a role by ID. Requires role.delete permission.
+order: 6000
+pathVariables:
+  - key: id
+    value: 'role-id-here'
+    description: The role's UUID
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

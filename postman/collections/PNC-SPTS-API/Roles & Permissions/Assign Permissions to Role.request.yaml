@@ -1,0 +1,42 @@
+$kind: http-request
+name: Assign Permissions to Role
+method: POST
+url: '{{baseUrl}}/roles/:id/permissions'
+description: Assign a set of permissions to a role. Requires permission.assign permission.
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: id
+    value: 'role-id-here'
+    description: The role's UUID
+body:
+  type: json
+  content: |-
+    {
+      "permissions": ["user.read", "user.create", "user.update", "user.delete"]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200 or 201', function () {
+        pm.expect([200, 201]).to.include(pm.response.code);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Role has permissions assigned', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
