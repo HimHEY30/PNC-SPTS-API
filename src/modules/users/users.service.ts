@@ -252,6 +252,7 @@ export class UsersService {
     if (!isSupportedRole(targetRole) || !canManageRole(actor.roles, targetRole)) {
       throw new ForbiddenException({
         error: 'FORBIDDEN',
+        required: targetRole,
         message: 'You are not allowed to assign this role.',
       });
     }

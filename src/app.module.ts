@@ -16,6 +16,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
 
 @Module({
@@ -49,6 +50,12 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
       useClass: JwtAuthGuard,
     },
     {
+      // Runs after JWT is verified — enforces @Roles() metadata
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      // Runs last — enforces @Permissions() metadata via DB lookup
       provide: APP_GUARD,
       useClass: PermissionsGuard,
     },

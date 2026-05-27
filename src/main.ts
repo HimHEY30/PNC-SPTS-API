@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import * as swaggerUi from 'swagger-ui-express';
 import { Request, Response } from 'express';
+import { HttpExceptionFilter } from './common/filters';
+import { LoggingInterceptor, TransformInterceptor } from './common/interceptors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +21,15 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // ── Global exception filter ──────────────────────────────────────────────
+  // Catches every thrown exception and returns a consistent JSON error body.
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // ── Global interceptors (order matters: outer → inner) ───────────────────
+  // 1. LoggingInterceptor  – logs method, path, status, and elapsed time.
+  // 2. TransformInterceptor – wraps successful responses in { statusCode, success, data, timestamp }.
+  app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor());
 
   app.getHttpAdapter().get(`/${apiPrefix}/docs-auto-auth.js`, (_req: Request, res: Response) => {
     res.type('application/javascript').send(`
