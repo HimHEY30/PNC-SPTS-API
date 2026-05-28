@@ -1,0 +1,203 @@
+openapi: 3.0.0
+info:
+  title: PNC-SPTS-API
+  version: 1.0.0
+servers:
+  - url: {{baseUrl}}
+    description: Local server
+paths:
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  expires_in:
+                    type: integer
+  /auth/refresh:
+    post:
+      summary: Refresh token
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenDto'
+      responses:
+        '200':
+          description: New tokens
+  /auth/logout:
+    post:
+      summary: Logout
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutDto'
+      responses:
+        '200':
+          description: Logged out
+  /auth/forgot-password:
+    post:
+      summary: Forgot password
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordDto'
+      responses:
+        '200':
+          description: Email sent
+  /auth/reset-password:
+    post:
+      summary: Reset password
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordDto'
+      responses:
+        '200':
+          description: Password reset
+  /users:
+    post:
+      summary: Create user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: User created
+    get:
+      summary: List users
+      tags:
+        - Users
+      responses:
+        '200':
+          description: List of users
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User data
+    patch:
+      summary: Update user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+components:
+  schemas:
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    RefreshTokenDto:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+    LogoutDto:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+    ForgotPasswordDto:
+      type: object
+      properties:
+        email:
+          type: string
+    ResetPasswordDto:
+      type: object
+      properties:
+        token:
+          type: string
+        newPassword:
+          type: string
+    CreateUserDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        roleId:
+          type: string
+    UpdateUserDto:
+      type: object
+      properties:
+        email:
+          type: string
+        roleId:
+          type: string
