@@ -51,6 +51,7 @@ export class UsersService {
       data: {
         email: createUserDto.email,
         password_hash: passwordHash,
+        profileImage: createUserDto.profileImage,
         entity_type: createUserDto.role.toLowerCase(),
         first_name: createUserDto.first_name,
         last_name: createUserDto.last_name,
@@ -134,6 +135,7 @@ export class UsersService {
         first_name: updateUserDto.first_name,
         last_name: updateUserDto.last_name,
         phone: updateUserDto.phone,
+        profileImage: updateUserDto.profileImage,
       },
       include: {
         roles: {

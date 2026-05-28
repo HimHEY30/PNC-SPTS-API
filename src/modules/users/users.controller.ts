@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -13,15 +14,17 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  /** Create a new user — staff-level write operation */
   @Post()
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.create')
-  create(@Req() req: Request, @Body() createUserDto: CreateUserDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  create(@Req() req: Request, @Body() createUserDto: CreateUserDto, @UploadedFile() file?: Express.Multer.File) {
+    if (file && file.path) {
+      (createUserDto as any).profileImage = file.path;
+    }
     return this.usersService.create(req.user as AuthenticatedUser, createUserDto);
   }
 
-  /** List all users */
   @Get()
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.read')
@@ -29,13 +32,11 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  /** Get the currently authenticated user's profile — any authenticated role */
   @Get('profile')
   getProfile(@Req() req: Request): AuthenticatedUser {
     return req.user as AuthenticatedUser;
   }
 
-  /** Get a single user by ID */
   @Get(':id')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.read')
@@ -43,27 +44,24 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  /** Update a user's basic info */
   @Patch(':id')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.update')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() file?: Express.Multer.File) {
+    if (file && file.path) {
+      (updateUserDto as any).profileImage = file.path;
+    }
     return this.usersService.update(id, updateUserDto);
   }
 
-  /** Assign or change a user's role */
   @Patch(':id/role')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.assign_role')
-  assignRole(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() assignRoleDto: AssignRoleDto,
-  ) {
+  assignRole(@Req() req: Request, @Param('id') id: string, @Body() assignRoleDto: AssignRoleDto) {
     return this.usersService.assignRole(req.user as AuthenticatedUser, id, assignRoleDto);
   }
 
-  /** Activate or deactivate a user account */
   @Patch(':id/status')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.update')
@@ -71,7 +69,6 @@ export class UsersController {
     return this.usersService.updateStatus(id, updateUserStatusDto);
   }
 
-  /** Soft-delete a user */
   @Delete(':id')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.delete')
