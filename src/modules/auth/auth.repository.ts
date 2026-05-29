@@ -47,15 +47,15 @@ export class AuthRepository {
   }
 
   async createRefreshToken(
-    userId: string,
-    tokenHash: string,
-    expiresAt: Date,
+    user_id: string,
+    token_hash: string,
+    expires_at: Date,
   ) {
     return this.prisma.refreshToken.create({
       data: {
-        user_id: userId,
-        token_hash: tokenHash,
-        expires_at: expiresAt,
+        user_id: user_id,
+        token_hash: token_hash,
+        expires_at: expires_at,
       },
     });
   }
@@ -68,20 +68,20 @@ export class AuthRepository {
   }
 
   async performTransaction(
-    userId: string,
-    tokenHash: string,
-    expiresAt: Date,
+    user_id: string,
+    token_hash: string,
+    expires_at: Date,
   ) {
     return this.prisma.$transaction([
       this.prisma.refreshToken.create({
         data: {
-          user_id: userId,
-          token_hash: tokenHash,
-          expires_at: expiresAt,
+          user_id: user_id,
+          token_hash: token_hash,
+          expires_at: expires_at,
         },
       }),
       this.prisma.authUser.update({
-        where: { id: userId },
+        where: { id: user_id },
         data: { last_login_at: new Date() },
       }),
     ]);
@@ -96,7 +96,7 @@ export class AuthRepository {
 
   async rotateRefreshToken(
     oldRefreshTokenId: string,
-    userId: string,
+    user_id: string,
     newTokenHash: string,
     newExpiresAt: Date,
   ) {
@@ -107,11 +107,11 @@ export class AuthRepository {
         data: {
           revoked: true,
           revoked_at: revokedAt,
-        } as any,
+        },
       }),
       this.prisma.refreshToken.create({
         data: {
-          user_id: userId,
+          user_id: user_id,
           token_hash: newTokenHash,
           expires_at: newExpiresAt,
         },
@@ -123,12 +123,12 @@ export class AuthRepository {
     return this.prisma.refreshToken.updateMany({
       where: {
         id: tokenId,
-        revoked_at: null as any,
-      } as any,
+        revoked_at: null,
+      },
       data: {
         revoked: true,
         revoked_at: new Date(),
-      } as any,
+      },
     });
   }
 
@@ -136,12 +136,12 @@ export class AuthRepository {
     return this.prisma.refreshToken.updateMany({
       where: {
         user_id: userId,
-        revoked_at: null as any,
-      } as any,
+        revoked_at: null,
+      },
       data: {
         revoked: true,
         revoked_at: new Date(),
-      } as any,
+      },
     });
   }
 
@@ -152,12 +152,12 @@ export class AuthRepository {
     });
   }
 
-  async createPasswordResetToken(userId: string, tokenHash: string, expiresAt: Date) {
+  async createPasswordResetToken(userId: string, token_hash: string, expires_at: Date) {
     return this.prisma.passwordResetToken.create({
       data: {
         user_id: userId,
-        token_hash: tokenHash,
-        expires_at: expiresAt,
+        token_hash: token_hash,
+        expires_at: expires_at,
       },
     });
   }

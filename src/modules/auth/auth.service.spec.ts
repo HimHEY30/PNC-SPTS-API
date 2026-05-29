@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { AuthLoginService } from './auth-login.service';
+import { MailService } from '../mail/mail.service';
 
 // Mock data
 const mockUser = {
@@ -40,10 +41,15 @@ describe('AuthService', () => {
   let repository: AuthRepository;
   let jwtService: JwtService;
   let authLoginService: AuthLoginService;
+  let mailService: MailService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+          {
+            provide: MailService,
+            useValue: { sendPasswordReset: jest.fn() },
+          },
         AuthService,
         {
           provide: AuthRepository,
@@ -55,6 +61,11 @@ describe('AuthService', () => {
             revokeRefreshTokenById: jest.fn(),
             revokeAllActiveRefreshTokensByUserId: jest.fn(),
             performTransaction: jest.fn(),
+            createUser: jest.fn(),
+            updatePassword: jest.fn(),
+            createPasswordResetToken: jest.fn(),
+            findUnusedResetTokensByUserId: jest.fn(),
+            markResetTokenAsUsed: jest.fn(),
           },
         },
         {
@@ -87,6 +98,7 @@ describe('AuthService', () => {
     repository = module.get<AuthRepository>(AuthRepository);
     jwtService = module.get<JwtService>(JwtService);
     authLoginService = module.get<AuthLoginService>(AuthLoginService);
+    mailService = module.get<MailService>(MailService);
   });
 
   it('should be defined', () => {
@@ -309,19 +321,90 @@ describe('AuthService', () => {
     });
   });
 
-  describe('register', () => {
-    it('should reject public registration', async () => {
-      await expect(
-        service.register({
-          email: 'newuser@example.com',
-          password: 'Password123!',
-        }),
-      ).rejects.toThrow(
-        new ForbiddenException({
-          error: 'REGISTRATION_DISABLED',
-          message: 'Public registration is not supported.',
-        }),
+  describe('forgotPassword', () => {
+    it('should create a 6 digit reset code and send it by email', async () => {
+      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
+      jest.spyOn(repository, 'findUnusedResetTokensByUserId').mockResolvedValue([]);
+      jest.spyOn(repository, 'createPasswordResetToken').mockResolvedValue({ id: 'reset-id' } as any);
+      jest.spyOn(mailService, 'sendPasswordReset').mockResolvedValue();
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-reset-code' as never);
+
+      const result = await service.forgotPassword({ email: 'teacher@example.com' });
+
+      expect(result).toEqual({ message: 'Password reset code sent' });
+      expect(repository.createPasswordResetToken).toHaveBeenCalledWith(
+        'user-id',
+        'hashed-reset-code',
+        expect.any(Date),
       );
+      expect(mailService.sendPasswordReset).toHaveBeenCalledWith(
+        'teacher@example.com',
+        expect.stringMatching(/^\d{6}$/),
+      );
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should update password when the 6 digit reset code matches', async () => {
+      const resetToken = {
+        id: 'reset-id',
+        token_hash: 'hashed-reset-code',
+        expires_at: new Date(Date.now() + 60_000),
+      };
+
+      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
+      jest.spyOn(repository, 'findUnusedResetTokensByUserId').mockResolvedValue([resetToken] as any);
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(async (plain: string, hash: string) => plain === '123456' && hash === 'hashed-reset-code');
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-new-password' as never);
+      jest.spyOn(repository, 'updatePassword').mockResolvedValue(mockUser as any);
+      jest.spyOn(repository, 'markResetTokenAsUsed').mockResolvedValue(resetToken as any);
+      jest.spyOn(repository, 'revokeAllActiveRefreshTokensByUserId').mockResolvedValue({ count: 1 } as any);
+
+      const result = await service.resetPassword({
+        email: 'teacher@example.com',
+        token: '123456',
+        newPassword: 'NewPassword123',
+      });
+
+      expect(result).toEqual({ message: 'Password reset successfully' });
+      expect(repository.updatePassword).toHaveBeenCalledWith('user-id', 'hashed-new-password');
+      expect(repository.markResetTokenAsUsed).toHaveBeenCalledWith('reset-id');
+      expect(repository.revokeAllActiveRefreshTokensByUserId).toHaveBeenCalledWith('user-id');
+    });
+
+    it('should reject a reset code that does not match', async () => {
+      const resetToken = {
+        id: 'reset-id',
+        token_hash: 'hashed-reset-code',
+        expires_at: new Date(Date.now() + 60_000),
+      };
+
+      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
+      jest.spyOn(repository, 'findUnusedResetTokensByUserId').mockResolvedValue([resetToken] as any);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+
+      await expect(
+        service.resetPassword({
+          email: 'teacher@example.com',
+          token: '654321',
+          newPassword: 'NewPassword123',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('register', () => {
+    it('should register a new user', async () => {
+      const newUser = { id: 'new-id', email: 'chandyneat9999@gmail.com' } as any;
+      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(null);
+      jest.spyOn(repository, 'createUser').mockResolvedValue(newUser);
+      const result = await service.register({
+        email: 'chandyneat9999@gmail.com',
+        password: 'Password123!',
+      });
+      expect(result).toEqual({ id: 'new-id', email: 'chandyneat9999@gmail.com' });
     });
   });
 });

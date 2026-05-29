@@ -5,6 +5,7 @@ import { DatabaseModule } from '../../database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
+import { MailModule } from '../mail/mail.module';
 import { AuthLoginService } from './auth-login.service';
 
 @Module({
@@ -19,6 +20,7 @@ import { AuthLoginService } from './auth-login.service';
       }),
       inject: [ConfigService],
     }),
+    MailModule,
   ],
   providers: [AuthService, AuthRepository, AuthLoginService],
   controllers: [AuthController],

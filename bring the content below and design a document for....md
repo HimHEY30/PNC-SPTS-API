@@ -54,7 +54,7 @@ The system replaces fragmented manual tracking with a centralized, auditable rec
 
 ### Current implemented schema
 
-The repository currently has only three Prisma models:
+The repository currently has only three Prisma mohhdels:
 
 - `User`: id, email, password, createdAt, updatedAt, roleId.
 - `Role`: id, name.

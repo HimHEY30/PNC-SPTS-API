@@ -1,15 +1,20 @@
-import { IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsString, Length, Matches, MinLength } from 'class-validator';
 
 export class ResetPasswordDto {
+  @IsEmail()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.trim().toLowerCase())
+  email: string;
+
   @IsString()
   @IsNotEmpty()
+  @Length(6, 6)
+  @Matches(/^\d{6}$/, { message: 'Token must be a 6 digit code' })
+  @Transform(({ value }) => value?.trim())
   token: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-    message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-  })
+  @MinLength(8)
   newPassword: string;
 }

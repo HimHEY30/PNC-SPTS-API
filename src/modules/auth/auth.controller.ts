@@ -27,11 +27,9 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() _registerDto: RegisterDto) {
-    throw new ForbiddenException({
-      error: 'REGISTRATION_DISABLED',
-      message: 'Public registration is not supported.',
-    });
+  async register(@Body() registerDto: RegisterDto) {
+    // Create the user via AuthService and return the result
+    return await this.authService.register(registerDto);
   }
 
   @Public()
