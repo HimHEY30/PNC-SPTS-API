@@ -19,6 +19,7 @@ datasource db {
 model AuthUser {
   id            String         @id @default(cuid())
   email         String         @unique
+  password_hash String
   profileImage   String?   @map("profile_image")
   entity_type   String // e.g., 'teacher', 'manager'
   first_name    String

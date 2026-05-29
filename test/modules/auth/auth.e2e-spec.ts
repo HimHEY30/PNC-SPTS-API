@@ -40,6 +40,8 @@ describe('AuthController (e2e)', () => {
         email: 'teacher@example.com',
         password_hash: passwordHash,
         entity_type: 'teacher',
+        first_name: 'Test',
+        last_name: 'Teacher',
         is_active: true,
       },
     });
@@ -56,6 +58,8 @@ describe('AuthController (e2e)', () => {
           email: 'inactive@example.com',
           password_hash: passwordHash,
           entity_type: 'teacher',
+          first_name: 'Inactive',
+          last_name: 'Teacher',
           is_active: false,
         },
       });
