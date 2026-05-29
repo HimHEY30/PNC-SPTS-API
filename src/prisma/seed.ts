@@ -61,6 +61,54 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   ],
 };
 
+async function findOrCreateSeedUser(data: {
+  email: string;
+  password_hash: string;
+  entity_type: string;
+  first_name: string;
+  last_name: string;
+  status: 'ACTIVE';
+}) {
+  const existingUser = await prisma.authUser.findUnique({
+    where: { email: data.email },
+  });
+
+  if (existingUser) {
+    return prisma.authUser.update({
+      where: { email: data.email },
+      data,
+    });
+  }
+
+  try {
+    return await prisma.authUser.create({ data });
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return prisma.authUser.update({
+        where: { email: data.email },
+        data,
+      });
+    }
+    throw error;
+  }
+}
+
+async function assignRole(userId: string, roleId: string) {
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId,
+        roleId,
+      },
+    },
+    update: {},
+    create: {
+      userId,
+      roleId,
+    },
+  });
+}
+
 async function main() {
   console.log('Start seeding ...');
 
@@ -106,65 +154,35 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('Password123!', 10);
 
-  const superAdminUser = await prisma.authUser.upsert({
-    where: { email: 'superadmin@example.com' },
-    update: {},
-    create: {
-      email: 'superadmin@example.com',
-      password_hash: hashedPassword,
-      entity_type: 'super_admin',
-      first_name: 'Super',
-      last_name: 'Admin',
-      status: 'ACTIVE',
-      roles: {
-        create: {
-          role: {
-            connect: { id: rolesByName.get('SUPER_ADMIN')!.id },
-          },
-        },
-      },
-    },
+  const superAdminUser = await findOrCreateSeedUser({
+    email: 'superadmin@example.com',
+    password_hash: hashedPassword,
+    entity_type: 'super_admin',
+    first_name: 'Super',
+    last_name: 'Admin',
+    status: 'ACTIVE',
   });
+  await assignRole(superAdminUser.id, rolesByName.get('SUPER_ADMIN')!.id);
 
-  const adminUser = await prisma.authUser.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      email: 'admin@example.com',
-      password_hash: hashedPassword,
-      entity_type: 'admin',
-      first_name: 'System',
-      last_name: 'Admin',
-      status: 'ACTIVE',
-      roles: {
-        create: {
-          role: {
-            connect: { id: rolesByName.get('ADMIN')!.id },
-          },
-        },
-      },
-    },
+  const adminUser = await findOrCreateSeedUser({
+    email: 'admin@example.com',
+    password_hash: hashedPassword,
+    entity_type: 'admin',
+    first_name: 'System',
+    last_name: 'Admin',
+    status: 'ACTIVE',
   });
+  await assignRole(adminUser.id, rolesByName.get('ADMIN')!.id);
 
-  const tutorUser = await prisma.authUser.upsert({
-    where: { email: 'tutor@example.com' },
-    update: {},
-    create: {
-      email: 'tutor@example.com',
-      password_hash: hashedPassword,
-      entity_type: 'teacher',
-      first_name: 'Default',
-      last_name: 'Tutor',
-      status: 'ACTIVE',
-      roles: {
-        create: {
-          role: {
-            connect: { id: rolesByName.get('TUTOR')!.id },
-          },
-        },
-      },
-    },
+  const tutorUser = await findOrCreateSeedUser({
+    email: 'tutor@example.com',
+    password_hash: hashedPassword,
+    entity_type: 'teacher',
+    first_name: 'Default',
+    last_name: 'Tutor',
+    status: 'ACTIVE',
   });
+  await assignRole(tutorUser.id, rolesByName.get('TUTOR')!.id);
 
   console.log('Users created.');
   console.log({
