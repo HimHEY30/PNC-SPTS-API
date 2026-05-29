@@ -1,0 +1,983 @@
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 697ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 640ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 586ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 701ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 608ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 531ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 559ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 524ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 611ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 569ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 613ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 660ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 577ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 566ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 581ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 606ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 573ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 4 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | PrismaClientKnownRequestError:
+api-1  | Invalid `prisma.authUser.upsert()` invocation in
+api-1  | /usr/src/app/src/prisma/seed.ts:109:48
+api-1  |
+api-1  |   106
+api-1  |   107 const hashedPassword = await bcrypt.hash('Password123!', 10);
+api-1  |   108
+api-1  | → 109 const superAdminUser = await prisma.authUser.upsert(
+api-1  | The column `pnc_db.auth_users.profile_image` does not exist in the current database.
+api-1  |     at An.handleRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6929)
+api-1  |     at An.handleAndLogRequestError (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6358)
+api-1  |     at An.request (/usr/src/app/node_modules/@prisma/client/runtime/library.js:174:6237)
+api-1  |     at async main (/usr/src/app/src/prisma/seed.ts:109:26) {
+api-1  |   code: 'P2022',
+api-1  |   clientVersion: '4.15.0',
+api-1  |   meta: { column: 'pnc_db.auth_users.profile_image' }
+api-1  | }
+api-1  |
+api-1  | An error occurred while running the seed command:
+api-1  | Error: Command failed with exit code 1: ts-node src/prisma/seed.ts
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 build
+api-1  | > prisma generate --schema=src/prisma/schema.prisma && nest build
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  |
+api-1  | ✔ Generated Prisma Client (4.15.0 | library) to ./node_modules/@prisma/client in 649ms
+api-1  | You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+api-1  | ```
+api-1  | import { PrismaClient } from '@prisma/client'
+api-1  | const prisma = new PrismaClient()
+api-1  | ```
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:migrate
+api-1  | > npx prisma migrate deploy
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Prisma schema loaded from src/prisma/schema.prisma
+api-1  | Datasource "db": MySQL database "pnc_db" at "mysql:3306"
+api-1  |
+api-1  | 5 migrations found in prisma/migrations
+api-1  |
+api-1  |
+api-1  | No pending migrations to apply.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 db:seed
+api-1  | > npx prisma db seed
+api-1  |
+api-1  | Environment variables loaded from .env
+api-1  | Running seed command `ts-node src/prisma/seed.ts` ...
+api-1  | Start seeding ...
+api-1  | Roles and permissions created.
+api-1  | Users created.
+api-1  | {
+api-1  |   roles: [
+api-1  |     'SUPER_ADMIN',
+api-1  |     'ADMIN',
+api-1  |     'ACADEMIC_MANAGER',
+api-1  |     'FOLLOWUP_OFFICER',
+api-1  |     'TUTOR',
+api-1  |     'STUDENT'
+api-1  |   ],
+api-1  |   users: [
+api-1  |     'superadmin@example.com',
+api-1  |     'admin@example.com',
+api-1  |     'tutor@example.com'
+api-1  |   ]
+api-1  | }
+api-1  |
+api-1  | 🌱  The seed command has been executed.
+api-1  |
+api-1  | > pnc-spts-api@0.0.1 start:prod
+api-1  | > node dist/main
+api-1  |
