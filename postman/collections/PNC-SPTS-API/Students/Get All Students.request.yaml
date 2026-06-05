@@ -1,0 +1,56 @@
+$kind: http-request
+name: Get All Students
+method: GET
+url: '{{baseUrl}}/students?page=1&limit=10'
+description: 'Retrieve paginated list of students. Supports ?page, ?limit, ?search query params.'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Data contains students array', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('data');
+        pm.expect(data.data).to.be.an('array');
+      });
+
+      pm.test('Pagination meta is present', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('meta');
+        pm.expect(data.meta).to.have.property('total');
+        pm.expect(data.meta).to.have.property('page');
+        pm.expect(data.meta).to.have.property('limit');
+      });
+
+      pm.test('Each student has required fields', function () {
+        const students = pm.response.json().data.data;
+        if (students && students.length > 0) {
+          students.forEach(function (student) {
+            pm.expect(student).to.have.property('id');
+            pm.expect(student).to.have.property('studentCode');
+            pm.expect(student).to.have.property('firstName');
+            pm.expect(student).to.have.property('lastName');
+          });
+        }
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

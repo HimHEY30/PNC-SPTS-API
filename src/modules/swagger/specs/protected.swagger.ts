@@ -22,6 +22,8 @@ export const protectedSwaggerDocument: SwaggerDocument = {
     { name: 'Users', description: 'User management endpoints' },
     { name: 'Roles & Permissions', description: 'Roles and permissions management endpoints' },
     { name: 'System', description: 'Protected system endpoints' },
+    { name: 'Students', description: 'Student management endpoints' },
+    { name: 'Follow-Up', description: 'Follow-up cases endpoints' },
   ],
   paths: {
     '/auth/logout': {
@@ -440,6 +442,96 @@ export const protectedSwaggerDocument: SwaggerDocument = {
           '401': { description: 'Unauthorized' },
         },
         tags: ['System'],
+      },
+    },
+    '/students': {
+      get: {
+        summary: 'Get paginated list of students',
+        security: [{ bearerAuth: [] }],
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Students'],
+      },
+      post: {
+        summary: 'Create student',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '201': { description: 'Created' }, '401': { description: 'Unauthorized' } },
+        tags: ['Students'],
+      },
+    },
+    '/students/{id}': {
+      get: {
+        summary: 'Get student by id',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Students'],
+      },
+      patch: {
+        summary: 'Update student',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Students'],
+      },
+      delete: {
+        summary: 'Delete student',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Students'],
+      },
+    },
+    '/follow-up/cases': {
+      get: {
+        summary: 'Get paginated list of follow-up cases',
+        security: [{ bearerAuth: [] }],
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Follow-Up'],
+      },
+      post: {
+        summary: 'Create follow-up case',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '201': { description: 'Created' }, '401': { description: 'Unauthorized' } },
+        tags: ['Follow-Up'],
+      },
+    },
+    '/follow-up/cases/{id}': {
+      get: {
+        summary: 'Get a single follow-up case by ID',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Follow-Up'],
+      },
+      put: {
+        summary: 'Update follow-up case',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Follow-Up'],
+      },
+      delete: {
+        summary: 'Delete a follow-up case',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+        tags: ['Follow-Up'],
       },
     },
   },

@@ -1,0 +1,44 @@
+$kind: http-request
+name: Get User Profile
+method: GET
+url: '{{baseUrl}}/user/profile'
+description: Get the current authenticated user's profile information.
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+      
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+      
+      pm.test('Profile data is returned', function () {
+        const json = pm.response.json();
+        pm.expect(json.data).to.have.property('id');
+        pm.expect(json.data).to.have.property('email');
+        pm.expect(json.data).to.have.property('firstName');
+        pm.expect(json.data).to.have.property('lastName');
+      });
+      
+      pm.test('Password is not exposed', function () {
+        const json = pm.response.json();
+        pm.expect(json.data).to.not.have.property('password');
+        pm.expect(json.data).to.not.have.property('password_hash');
+      });
+      
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

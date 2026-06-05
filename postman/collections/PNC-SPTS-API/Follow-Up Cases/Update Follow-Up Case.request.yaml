@@ -1,0 +1,50 @@
+$kind: http-request
+name: Update Follow-Up Case
+method: PUT
+url: '{{baseUrl}}/follow-up/cases/{{followUpCaseId}}'
+description: Update an existing follow-up case by ID. All fields are optional.
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "title": "Academic Performance Issue - Updated",
+      "description": "Student has shown improvement but still needs monitoring.",
+      "priority": "low",
+      "status": "IN_PROGRESS"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Updated case has required fields', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+        pm.expect(data).to.have.property('title');
+        pm.expect(data).to.have.property('status');
+        pm.expect(data).to.have.property('priority');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

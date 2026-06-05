@@ -1,0 +1,63 @@
+$kind: http-request
+name: Create Student
+method: POST
+url: '{{baseUrl}}/students'
+description: Create a new student record. Requires authentication.
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "studentCode": "STU-001",
+      "firstName": "Sophea",
+      "lastName": "Chan",
+      "gender": "male",
+      "dateOfBirth": "2000-05-15",
+      "placeOfBirth": "Phnom Penh",
+      "phone": "012345678",
+      "email": "sophea.chan@example.com",
+      "classId": ""
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 201', function () {
+        pm.response.to.have.status(201);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 201);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Created student has required fields', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+        pm.expect(data).to.have.property('studentCode');
+        pm.expect(data).to.have.property('firstName');
+        pm.expect(data).to.have.property('lastName');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      // Save student ID for subsequent requests
+      if (pm.response.code === 201) {
+        const data = pm.response.json().data;
+        if (data && data.id) {
+          pm.collectionVariables.set('studentId', data.id);
+        }
+      }

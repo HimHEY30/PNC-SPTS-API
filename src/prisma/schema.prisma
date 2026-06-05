@@ -1,6 +1,16 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+enum FollowUpStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+
+
+
 generator client {
   provider      = "prisma-client-js"
   engineType    = "library"
@@ -13,7 +23,7 @@ datasource db {
 }
 
 // =============================================================================
-// 1. Identity and Access Management
+// 1. Identity and Access Managementx
 // =============================================================================
 
 model AuthUser {
@@ -238,9 +248,10 @@ model FollowUpCase {
   title             String
   description       String?
   priority          PriorityLevel @default(medium)
-  statusId          String
-  openedDate        DateTime      @default(now())
-  closedDate        DateTime?
+  status FollowUpStatus @default(OPEN)
+  caseTypeMap FollowUpCaseTypeMap[]
+  reports     FollowUpReport[]
+  removals    FollowUpRemoval[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -251,16 +262,10 @@ model FollowUpCase {
   student         Student        @relation(fields: [studentId], references: [id])
   openedByTeacher Teacher        @relation("OpenedByTeacher", fields: [openedByTeacherId], references: [id])
   term            Term           @relation(fields: [termId], references: [id])
-  status          FollowUpStatus @relation(fields: [statusId], references: [id])
-
-  caseTypeMap FollowUpCaseTypeMap[]
-  reports     FollowUpReport[]
-  removals    FollowUpRemoval[]
 
   @@index([studentId])
   @@index([openedByTeacherId])
   @@index([termId])
-  @@index([statusId])
 }
 
 model FollowUpCaseType {
@@ -285,13 +290,7 @@ model FollowUpCaseTypeMap {
   @@index([followUpTypeId])
 }
 
-model FollowUpStatus {
-  id        String  @id @default(cuid())
-  name      String  @unique
-  colorCode String?
 
-  followUpCases FollowUpCase[]
-}
 
 model FollowUpReport {
   id             String   @id @default(cuid())

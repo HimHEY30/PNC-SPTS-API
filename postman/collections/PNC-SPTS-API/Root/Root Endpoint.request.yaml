@@ -1,0 +1,29 @@
+$kind: http-request
+name: Root Endpoint
+method: GET
+url: '{{baseUrl}}/'
+description: Root endpoint that returns a welcome message. Public endpoint - no authentication required.
+auth:
+  type: noauth
+order: 1000
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+      
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+      
+      pm.test('Welcome message is returned', function () {
+        const json = pm.response.json();
+        pm.expect(json.data).to.be.a('string');
+        pm.expect(json.data.length).to.be.greaterThan(0);
+      });
+    language: text/javascript

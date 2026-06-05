@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config({ override: true });
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -185,9 +187,125 @@ async function main() {
   await assignRole(tutorUser.id, rolesByName.get('TUTOR')!.id);
 
   console.log('Users created.');
+
+  // --- ACADEMIC CORE SEED DATA ---
+  console.log('Seeding Academic Core data...');
+
+  // 1. Terms
+  const term1 = await prisma.term.upsert({
+    where: { academicYear_semester: { academicYear: '2026', semester: 'Semester 1' } },
+    update: {},
+    create: { academicYear: '2026', semester: 'Semester 1', startDate: new Date('2026-09-01'), endDate: new Date('2027-01-31') }
+  });
+
+  // 2. Classes
+  const class1 = await prisma.class.upsert({
+    where: { name_batchYear: { name: 'SNA 2026', batchYear: 2026 } },
+    update: {},
+    create: { name: 'SNA 2026', batchYear: 2026 }
+  });
+  const class2 = await prisma.class.upsert({
+    where: { name_batchYear: { name: 'WEB 2026', batchYear: 2026 } },
+    update: {},
+    create: { name: 'WEB 2026', batchYear: 2026 }
+  });
+
+  // 3. Subjects
+  const subject1 = await prisma.subject.upsert({
+    where: { code: 'SUB-WEB101' },
+    update: {},
+    create: { code: 'SUB-WEB101', name: 'Frontend Web Development', credit: 3 }
+  });
+  const subject2 = await prisma.subject.upsert({
+    where: { code: 'SUB-SNA101' },
+    update: {},
+    create: { code: 'SUB-SNA101', name: 'System and Network Administration', credit: 4 }
+  });
+
+  // 4. Teachers (Link to AuthUsers)
+  const teacherTutor = await prisma.teacher.upsert({
+    where: { teacherCode: 'TCH-001' },
+    update: { userId: tutorUser.id },
+    create: { teacherCode: 'TCH-001', firstName: 'Default', lastName: 'Tutor', userId: tutorUser.id }
+  });
+
+  // 5. Students
+  const studentsData = [
+    { studentCode: 'STU-001', firstName: 'Alice', lastName: 'Smith', email: 'alice@example.com', gender: 'female', classId: class1.id },
+    { studentCode: 'STU-002', firstName: 'Bob', lastName: 'Jones', email: 'bob@example.com', gender: 'male', classId: class2.id },
+    { studentCode: 'STU-003', firstName: 'Charlie', lastName: 'Brown', email: 'charlie@example.com', gender: 'male', classId: class2.id }
+  ];
+
+  for (const stu of studentsData) {
+    await prisma.student.upsert({
+      where: { studentCode: stu.studentCode },
+      update: { classId: stu.classId },
+      // @ts-ignore
+      create: stu
+    });
+  }
+
+  console.log('Academic core data created.');
+
+  // FollowUpStatus is an enum (OPEN, IN_PROGRESS, RESOLVED, CLOSED) — no seeding required.
+
+  // Seed follow‑up case types
+  const caseTypeAcademic = await prisma.followUpCaseType.upsert({
+    where: { name: 'Academic' },
+    update: {},
+    create: { name: 'Academic', description: 'Academic related issue' },
+  });
+  const caseTypeBehaviour = await prisma.followUpCaseType.upsert({
+    where: { name: 'Behaviour' },
+    update: {},
+    create: { name: 'Behaviour', description: 'Behavioural issue' },
+  });
+
+  // Retrieve existing entities for linking
+  const studentAlice = await prisma.student.findUnique({ where: { studentCode: 'STU-001' } });
+  const teacherJohn = await prisma.teacher.findUnique({ where: { teacherCode: 'TCH-001' } });
+  const term2023 = await prisma.term.findFirst({ where: { academicYear: '2026' } });
+
+  // Seed a follow‑up case linked to Alice and John
+  const followUpCase = await prisma.followUpCase.create({
+    data: {
+      student: { connect: { id: studentAlice.id } },
+      openedByTeacher: { connect: { id: teacherJohn.id } },
+      term: { connect: { id: term2023.id } },
+      title: 'Math performance decline',
+      description: 'Student is struggling with algebra concepts.',
+      priority: 'high',
+      status: 'OPEN',
+      caseTypeMap: { create: [{ followUpType: { connect: { id: caseTypeAcademic.id } } }] },
+    },
+  });
+
+  // Seed a report for the case
+  const report = await prisma.followUpReport.create({
+    data: {
+      followUpCase: { connect: { id: followUpCase.id } },
+      teacher: { connect: { id: teacherJohn.id } },
+      progressStatus: 'Initial assessment',
+      observation: 'Needs extra tutoring sessions.',
+      nextAction: 'Schedule bi‑weekly review.',
+    },
+  });
+
+  // Seed an attachment for the report (dummy file path)
+  await prisma.followUpAttachment.create({
+    data: {
+      report: { connect: { id: report.id } },
+      fileName: 'assessment.pdf',
+      filePath: '/uploads/assessment.pdf',
+      fileType: 'application/pdf',
+      fileSize: 102400,
+    },
+  });
+
   console.log({
     roles: roleEntries.map((role) => role.name),
     users: [superAdminUser.email, adminUser.email, tutorUser.email],
+    academic: { terms: 1, classes: 2, subjects: 2, teachers: 1, students: 3 }
   });
 }
 

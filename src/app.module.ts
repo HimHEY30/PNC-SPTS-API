@@ -13,6 +13,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SwaggerModule } from './modules/swagger/swagger.module';
 import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { StudentsModule } from './modules/students/students.module';
+import { FollowUpModule } from './modules/follow-up/follow-up.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -41,6 +43,8 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
     SwaggerModule,
     UsersModule,
     RolesModule,
+    StudentsModule,
+    FollowUpModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,0 +1,49 @@
+$kind: http-request
+name: Register
+method: POST
+url: '{{baseUrl}}/auth/register'
+description: Create a new user account. Public endpoint - no authentication required.
+auth:
+  type: noauth
+order: 500
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "newuser@example.com",
+      "password": "Password123!",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role_id": 1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 201', function () {
+        pm.response.to.have.status(201);
+      });
+      
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 201);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+      
+      pm.test('User data is returned', function () {
+        const json = pm.response.json();
+        pm.expect(json.data).to.have.property('id');
+        pm.expect(json.data).to.have.property('email');
+        pm.expect(json.data).to.have.property('firstName');
+        pm.expect(json.data).to.have.property('lastName');
+      });
+      
+      pm.test('Password is not exposed', function () {
+        const json = pm.response.json();
+        pm.expect(json.data).to.not.have.property('password');
+      });
+    language: text/javascript

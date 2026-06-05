@@ -1,9 +1,12 @@
-# Use this workspace to collaborate
 workspace:
   id: da1912fa-03b9-4a98-8eca-df6c5b31914e
-
-# All resources in the `postman/` folder are automatically registered in Local View.
-# Point to additional files outside the `postman/` folder to register them individually. Example:
-#localResources:
-#  collections:
-#    - ../tests/E2E Test Collection/
+localResources:
+  collections:
+    - ../postman/collections/PNC-SPTS-API
+  environments:
+    - ../postman/environments/api-stgs-pnc.environment.yaml
+cloudResources:
+  collections:
+    ../postman/collections/PNC-SPTS-API: 55268446-8e007385-95c0-4e9b-b51a-9a48af5b3008
+  environments:
+    ../postman/environments/api-stgs-pnc.environment.yaml: 55268446-f141eaf0-0e74-4069-96e3-f3afb363e8b7

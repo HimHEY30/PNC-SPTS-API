@@ -1,0 +1,41 @@
+$kind: http-request
+name: Get Follow-Up Case by ID
+method: GET
+url: '{{baseUrl}}/follow-up/cases/{{followUpCaseId}}'
+description: Retrieve a single follow-up case by its ID.
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Follow-up case has required fields', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.have.property('id');
+        pm.expect(data).to.have.property('title');
+        pm.expect(data).to.have.property('status');
+        pm.expect(data).to.have.property('priority');
+        pm.expect(data).to.have.property('studentId');
+        pm.expect(data).to.have.property('openedByTeacherId');
+        pm.expect(data).to.have.property('termId');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

@@ -1,0 +1,53 @@
+$kind: http-request
+name: Get All Follow-Up Cases
+method: GET
+url: '{{baseUrl}}/follow-up/cases'
+description: Retrieve paginated list of follow-up cases. Supports ?page and ?limit query params.
+order: 2000
+queryParams:
+  - key: page
+    value: '1'
+  - key: limit
+    value: '10'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{accessToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Data contains cases array', function () {
+        const data = pm.response.json().data;
+        pm.expect(data).to.be.an('object');
+      });
+
+      pm.test('Each case has required fields', function () {
+        const json = pm.response.json();
+        const cases = json.data.data || json.data;
+        if (Array.isArray(cases) && cases.length > 0) {
+          cases.forEach(function (c) {
+            pm.expect(c).to.have.property('id');
+            pm.expect(c).to.have.property('title');
+            pm.expect(c).to.have.property('status');
+            pm.expect(c).to.have.property('priority');
+          });
+        }
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
