@@ -1,14 +1,20 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import * as swaggerUi from 'swagger-ui-express';
 import { Request, Response } from 'express';
+import { join } from 'path';
 import { HttpExceptionFilter } from './common/filters';
 import { LoggingInterceptor, TransformInterceptor } from './common/interceptors';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
+  });
   const configService = app.get(ConfigService);
   const port = configService.get<number>('app.port', 3000);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');

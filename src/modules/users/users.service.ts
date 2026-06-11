@@ -263,12 +263,14 @@ export class UsersService {
   private toUserResponse(user: {
     id: string;
     email: string;
+    profileImage: string | null;
     entity_type: string;
     first_name: string;
     last_name: string;
     phone: string | null;
     is_active: boolean;
     status: string;
+    last_login_at: Date | null;
     deletedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
@@ -280,9 +282,11 @@ export class UsersService {
       last_name: user.last_name,
       email: user.email,
       phone: user.phone,
+      profile_image: user.profileImage,
       entity_type: user.entity_type,
       is_active: user.is_active,
       status: user.status,
+      last_login_at: user.last_login_at,
       deleted_at: user.deletedAt,
       created_at: user.createdAt,
       updated_at: user.updatedAt,
