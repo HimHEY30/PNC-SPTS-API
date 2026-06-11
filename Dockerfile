@@ -24,7 +24,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl wget
 
 COPY package*.json ./
 
