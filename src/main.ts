@@ -9,6 +9,14 @@ import { LoggingInterceptor, TransformInterceptor } from './common/interceptors'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // ── CORS – allow frontend dev server ──────────────────────────────────────
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   const configService = app.get(ConfigService);
   const port = configService.get<number>('app.port', 3000);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
