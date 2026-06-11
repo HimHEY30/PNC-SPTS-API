@@ -102,6 +102,6 @@
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma",
-    "seed": "node dist/src/prisma/seed.js"
+    "seed": "tsx src/prisma/seed.ts"
   }
 }
