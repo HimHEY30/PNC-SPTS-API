@@ -18,6 +18,9 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads',
   });
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/teacher-images',
+  });
   const configService = app.get(ConfigService);
   const port = configService.get<number>('app.port', 3000);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');

@@ -49,16 +49,18 @@ export class UsersService {
     }
 
     const passwordHash = await bcrypt.hash(createUserDto.password, 12);
+    const profileImageUrl =
+      createUserDto.profileImage || createUserDto.profile_image;
 
     const createdUser = await this.prisma.authUser.create({
       data: {
         email: createUserDto.email,
         password_hash: passwordHash,
-        profileImage: createUserDto.profileImage,
+        profileImage: profileImageUrl,
         entity_type: createUserDto.role.toLowerCase(),
         first_name: createUserDto.first_name,
         last_name: createUserDto.last_name,
-        phone: createUserDto.phone,
+        phone: createUserDto.phone === '' ? null : createUserDto.phone,
         is_active: true,
         status: 'ACTIVE',
         roles: {
@@ -132,13 +134,16 @@ export class UsersService {
       }
     }
 
+    const profileImageUrl =
+      updateUserDto.profileImage || updateUserDto.profile_image;
+
     const updatedUser = await this.prisma.authUser.update({
       where: { id },
       data: {
         first_name: updateUserDto.first_name,
         last_name: updateUserDto.last_name,
-        phone: updateUserDto.phone,
-        profileImage: updateUserDto.profileImage,
+        phone: updateUserDto.phone === '' ? null : updateUserDto.phone,
+        profileImage: profileImageUrl,
       },
       include: {
         roles: {
@@ -158,10 +163,22 @@ export class UsersService {
         await this.prisma.student.update({
           where: { id: student.id },
           data: {
-            firstName: updateUserDto.first_name !== undefined ? updateUserDto.first_name : undefined,
-            lastName: updateUserDto.last_name !== undefined ? updateUserDto.last_name : undefined,
-            phone: updateUserDto.phone !== undefined ? updateUserDto.phone : undefined,
-            profileImage: updateUserDto.profileImage !== undefined ? updateUserDto.profileImage : undefined,
+            firstName:
+              updateUserDto.first_name !== undefined
+                ? updateUserDto.first_name
+                : undefined,
+            lastName:
+              updateUserDto.last_name !== undefined
+                ? updateUserDto.last_name
+                : undefined,
+            phone:
+              updateUserDto.phone !== undefined
+                ? updateUserDto.phone === ''
+                  ? null
+                  : updateUserDto.phone
+                : undefined,
+            profileImage:
+              profileImageUrl !== undefined ? profileImageUrl : undefined,
           },
         });
       }
@@ -175,9 +192,20 @@ export class UsersService {
       await this.prisma.teacher.update({
         where: { id: teacher.id },
         data: {
-          firstName: updateUserDto.first_name !== undefined ? updateUserDto.first_name : undefined,
-          lastName: updateUserDto.last_name !== undefined ? updateUserDto.last_name : undefined,
-          phone: updateUserDto.phone !== undefined ? updateUserDto.phone : undefined,
+          firstName:
+            updateUserDto.first_name !== undefined
+              ? updateUserDto.first_name
+              : undefined,
+          lastName:
+            updateUserDto.last_name !== undefined
+              ? updateUserDto.last_name
+              : undefined,
+          phone:
+            updateUserDto.phone !== undefined
+              ? updateUserDto.phone === ''
+                ? null
+                : updateUserDto.phone
+              : undefined,
         },
       });
     }

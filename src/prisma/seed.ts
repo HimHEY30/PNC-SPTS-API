@@ -16,6 +16,10 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'role.delete',
     'permission.read',
     'permission.assign',
+    'teacher.create',
+    'teacher.read',
+    'teacher.update',
+    'teacher.delete',
     'system.manage',
     'audit.read',
   ],
@@ -24,6 +28,10 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'user.read',
     'user.update',
     'user.assign_role',
+    'teacher.create',
+    'teacher.read',
+    'teacher.update',
+    'teacher.delete',
     'student.*',
     'followup.*',
     'evaluation.*',
@@ -110,7 +118,12 @@ async function main() {
 
   const superAdminUser = await prisma.authUser.upsert({
     where: { email: 'superadmin@example.com' },
-    update: {},
+    update: {
+      password_hash: hashedPassword,
+      first_name: 'Super',
+      last_name: 'Admin',
+      status: 'ACTIVE',
+    },
     create: {
       email: 'superadmin@example.com',
       password_hash: hashedPassword,
@@ -118,19 +131,31 @@ async function main() {
       first_name: 'Super',
       last_name: 'Admin',
       status: 'ACTIVE',
-      roles: {
-        create: {
-          role: {
-            connect: { id: rolesByName.get('SUPER_ADMIN').id },
-          },
-        },
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: superAdminUser.id,
+        roleId: rolesByName.get('SUPER_ADMIN').id,
       },
+    },
+    update: {},
+    create: {
+      userId: superAdminUser.id,
+      roleId: rolesByName.get('SUPER_ADMIN').id,
     },
   });
 
   const adminUser = await prisma.authUser.upsert({
     where: { email: 'admin@example.com' },
-    update: {},
+    update: {
+      password_hash: hashedPassword,
+      first_name: 'System',
+      last_name: 'Admin',
+      status: 'ACTIVE',
+    },
     create: {
       email: 'admin@example.com',
       password_hash: hashedPassword,
@@ -138,19 +163,31 @@ async function main() {
       first_name: 'System',
       last_name: 'Admin',
       status: 'ACTIVE',
-      roles: {
-        create: {
-          role: {
-            connect: { id: rolesByName.get('ADMIN').id },
-          },
-        },
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: adminUser.id,
+        roleId: rolesByName.get('ADMIN').id,
       },
+    },
+    update: {},
+    create: {
+      userId: adminUser.id,
+      roleId: rolesByName.get('ADMIN').id,
     },
   });
 
   const tutorUser = await prisma.authUser.upsert({
     where: { email: 'tutor@example.com' },
-    update: {},
+    update: {
+      password_hash: hashedPassword,
+      first_name: 'Default',
+      last_name: 'Tutor',
+      status: 'ACTIVE',
+    },
     create: {
       email: 'tutor@example.com',
       password_hash: hashedPassword,
@@ -158,13 +195,20 @@ async function main() {
       first_name: 'Default',
       last_name: 'Tutor',
       status: 'ACTIVE',
-      roles: {
-        create: {
-          role: {
-            connect: { id: rolesByName.get('TUTOR').id },
-          },
-        },
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: tutorUser.id,
+        roleId: rolesByName.get('TUTOR').id,
       },
+    },
+    update: {},
+    create: {
+      userId: tutorUser.id,
+      roleId: rolesByName.get('TUTOR').id,
     },
   });
 

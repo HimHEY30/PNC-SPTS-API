@@ -21,7 +21,10 @@
     "db:migrate": "npx prisma migrate deploy",
     "db:migrate:dev": "npx dotenv -e .env -- prisma migrate dev",
     "db:generate": "npx prisma generate",
-    "db:seed": "npx prisma db seed"
+    "db:seed": "npx prisma db seed",
+    "deploy:server": "docker-compose -f docker-compose.server.yml up -d --build",
+    "deploy:server:stop": "docker-compose -f docker-compose.server.yml down",
+    "deploy:server:logs": "docker-compose -f docker-compose.server.yml logs -f"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

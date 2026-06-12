@@ -56,7 +56,7 @@ export class StudentsService {
         studentCode: data.studentCode,
         firstName: data.firstName,
         lastName: data.lastName,
-        gender: genderEnum as any,
+        gender: genderEnum,
         dateOfBirth: dobDate,
         placeOfBirth: data.placeOfBirth,
         phone: data.phone,
@@ -168,6 +168,42 @@ export class StudentsService {
     const student = await this.prisma.student.findUnique({ where: { id } });
     if (!student || student.deletedAt) return null;
 
+    if (data.studentCode && data.studentCode !== student.studentCode) {
+      const existingCode = await this.prisma.student.findFirst({
+        where: { studentCode: data.studentCode, deletedAt: null },
+      });
+      if (existingCode) {
+        throw new ConflictException({
+          error: 'STUDENT_CODE_ALREADY_EXISTS',
+          message: 'Student code already exists.',
+        });
+      }
+    }
+
+    if (data.email && data.email !== student.email) {
+      const existingEmail = await this.prisma.student.findFirst({
+        where: { email: data.email, deletedAt: null },
+      });
+      if (existingEmail) {
+        throw new ConflictException({
+          error: 'STUDENT_EMAIL_ALREADY_EXISTS',
+          message: 'Student email already exists.',
+        });
+      }
+    }
+
+    let genderEnum = undefined;
+    if (data.gender !== undefined) {
+      if (data.gender) {
+        const lowerGender = data.gender.toLowerCase();
+        if (['male', 'female', 'other'].includes(lowerGender)) {
+          genderEnum = lowerGender;
+        }
+      } else {
+        genderEnum = null;
+      }
+    }
+
     let statusEnum = undefined;
     if (data.status) {
       const lower = data.status.toLowerCase();
@@ -176,17 +212,28 @@ export class StudentsService {
       }
     }
 
+    let dobDate = undefined;
+    if (data.dateOfBirth !== undefined) {
+      dobDate = data.dateOfBirth ? new Date(data.dateOfBirth) : null;
+    }
+
     const updated = await this.prisma.student.update({
       where: { id },
       data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        placeOfBirth: data.placeOfBirth,
-        status: statusEnum,
-        classId: data.classId,
-        profileImage: data.profileImage,
+        studentCode:
+          data.studentCode !== undefined ? data.studentCode : undefined,
+        firstName: data.firstName !== undefined ? data.firstName : undefined,
+        lastName: data.lastName !== undefined ? data.lastName : undefined,
+        email: data.email !== undefined ? data.email : undefined,
+        phone: data.phone !== undefined ? data.phone : undefined,
+        placeOfBirth:
+          data.placeOfBirth !== undefined ? data.placeOfBirth : undefined,
+        gender: genderEnum !== undefined ? genderEnum : undefined,
+        dateOfBirth: dobDate !== undefined ? dobDate : undefined,
+        status: statusEnum !== undefined ? statusEnum : undefined,
+        classId: data.classId !== undefined ? data.classId : undefined,
+        profileImage:
+          data.profileImage !== undefined ? data.profileImage : undefined,
         updatedAt: new Date(),
       },
       include: { class: true },
@@ -201,11 +248,13 @@ export class StudentsService {
         await this.prisma.authUser.update({
           where: { id: authUser.id },
           data: {
-            first_name: data.firstName !== undefined ? data.firstName : undefined,
+            first_name:
+              data.firstName !== undefined ? data.firstName : undefined,
             last_name: data.lastName !== undefined ? data.lastName : undefined,
             email: data.email !== undefined ? data.email : undefined,
             phone: data.phone !== undefined ? data.phone : undefined,
-            profileImage: data.profileImage !== undefined ? data.profileImage : undefined,
+            profileImage:
+              data.profileImage !== undefined ? data.profileImage : undefined,
           },
         });
       }

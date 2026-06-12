@@ -15,7 +15,10 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { Permissions } from '@/common/decorators/permissions.decorator';
+import { Roles } from '@/common/decorators/roles.decorator';
 import { TeachersService } from './teachers.service';
+import { CreateTeacherDto } from './dto/create-teacher.dto';
+import { UpdateTeacherDto } from './dto/update-teacher.dto';
 
 const profileImageStorage = diskStorage({
   destination: (_req, _file, cb) => {
@@ -30,6 +33,7 @@ const profileImageStorage = diskStorage({
 });
 
 @Controller('teachers')
+@Roles('SUPER_ADMIN', 'ADMIN')
 export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}
 
@@ -37,17 +41,17 @@ export class TeachersController {
   @Permissions('teacher.create')
   @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
   async create(
-    @Body() createData: any,
+    @Body() createTeacherDto: CreateTeacherDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
-      createData.profileImage = `/uploads/profile-images/${file.filename}`;
+      createTeacherDto.profileImage = `/uploads/profile-images/${file.filename}`;
     }
     // Parse boolean status if received as string from FormData
-    if (typeof createData.status === 'string') {
-      createData.status = createData.status === 'true';
+    if (typeof createTeacherDto.status === 'string') {
+      createTeacherDto.status = (createTeacherDto.status as string) === 'true';
     }
-    return this.teachersService.create(createData);
+    return this.teachersService.create(createTeacherDto);
   }
 
   @Get()
@@ -71,17 +75,17 @@ export class TeachersController {
   @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
   async update(
     @Param('id') id: string,
-    @Body() updateData: any,
+    @Body() updateTeacherDto: UpdateTeacherDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
-      updateData.profileImage = `/uploads/profile-images/${file.filename}`;
+      updateTeacherDto.profileImage = `/uploads/profile-images/${file.filename}`;
     }
     // Parse boolean status if received as string from FormData
-    if (typeof updateData.status === 'string') {
-      updateData.status = updateData.status === 'true';
+    if (typeof updateTeacherDto.status === 'string') {
+      updateTeacherDto.status = (updateTeacherDto.status as string) === 'true';
     }
-    const teacher = await this.teachersService.update(id, updateData);
+    const teacher = await this.teachersService.update(id, updateTeacherDto);
     if (!teacher) {
       throw new NotFoundException({ error: 'TEACHER_NOT_FOUND' });
     }

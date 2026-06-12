@@ -40,4 +40,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   profileImage?: string;
+
+  @IsOptional()
+  @IsString()
+  profile_image?: string;
 }
