@@ -22,7 +22,10 @@ export class SwaggerDocsService {
     return {
       ...doc,
       paths: Object.fromEntries(
-        Object.entries(doc.paths).map(([path, pathItem]) => [`/${apiPrefix}${path}`, pathItem]),
+        Object.entries(doc.paths).map(([path, pathItem]) => [
+          `/${apiPrefix}${path}`,
+          pathItem,
+        ]),
       ),
     };
   }

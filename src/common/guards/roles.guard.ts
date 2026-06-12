@@ -40,7 +40,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    const user = request.user as AuthenticatedUser | undefined;
+    const user = request.user;
 
     if (!user || !user.roles || user.roles.length === 0) {
       throw new ForbiddenException({
@@ -50,10 +50,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // Super-admins and admins bypass all role checks
-    if (
-      user.roles.includes('SUPER_ADMIN') ||
-      user.roles.includes('ADMIN')
-    ) {
+    if (user.roles.includes('SUPER_ADMIN') || user.roles.includes('ADMIN')) {
       return true;
     }
 

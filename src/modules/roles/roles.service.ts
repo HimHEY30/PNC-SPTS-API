@@ -173,7 +173,10 @@ export class RolesService {
       where: { id: role.id },
     });
 
-    return { success: true, message: `Role '${role.name}' was successfully deleted.` };
+    return {
+      success: true,
+      message: `Role '${role.name}' was successfully deleted.`,
+    };
   }
 
   async findAllPermissions() {
@@ -184,7 +187,10 @@ export class RolesService {
     return permissions.map((p) => p.name);
   }
 
-  async assignPermissions(idOrName: string, assignPermissionsDto: AssignPermissionsDto) {
+  async assignPermissions(
+    idOrName: string,
+    assignPermissionsDto: AssignPermissionsDto,
+  ) {
     const role = await this.prisma.role.findFirst({
       where: {
         OR: [{ id: idOrName }, { name: idOrName }],

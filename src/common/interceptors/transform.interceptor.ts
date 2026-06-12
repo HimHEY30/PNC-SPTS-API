@@ -28,11 +28,7 @@ export class TransformInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data: unknown) => {
         // Don't double-wrap if the handler already returns a shaped envelope.
-        if (
-          data !== null &&
-          typeof data === 'object' &&
-          'statusCode' in (data as object)
-        ) {
+        if (data !== null && typeof data === 'object' && 'statusCode' in data) {
           return data;
         }
 

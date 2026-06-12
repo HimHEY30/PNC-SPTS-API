@@ -46,10 +46,10 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-          {
-            provide: MailService,
-            useValue: { sendPasswordReset: jest.fn() },
-          },
+        {
+          provide: MailService,
+          useValue: { sendPasswordReset: jest.fn() },
+        },
         AuthService,
         {
           provide: AuthRepository,
@@ -110,9 +110,13 @@ describe('AuthService', () => {
   // ---------------------------------------------------------------------------
   describe('login', () => {
     it('should return tokens for valid credentials', async () => {
-      jest.spyOn(authLoginService, 'validateCredentials').mockResolvedValue(mockUser as any);
-      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('test-token' as never);
-      jest.spyOn(repository, 'performTransaction').mockResolvedValue(true as any);
+      jest
+        .spyOn(authLoginService, 'validateCredentials')
+        .mockResolvedValue(mockUser as any);
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('test-token');
+      jest
+        .spyOn(repository, 'performTransaction')
+        .mockResolvedValue(true as any);
 
       const result = await service.login(mockLoginDto);
 
@@ -124,7 +128,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for invalid email', async () => {
       jest
         .spyOn(authLoginService, 'validateCredentials')
-        .mockRejectedValue(new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }));
+        .mockRejectedValue(
+          new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }),
+        );
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }),
@@ -134,7 +140,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for incorrect password', async () => {
       jest
         .spyOn(authLoginService, 'validateCredentials')
-        .mockRejectedValue(new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }));
+        .mockRejectedValue(
+          new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }),
+        );
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new UnauthorizedException({ error: 'INVALID_CREDENTIALS' }),
@@ -144,7 +152,9 @@ describe('AuthService', () => {
     it('should throw ForbiddenException for inactive account', async () => {
       jest
         .spyOn(authLoginService, 'validateCredentials')
-        .mockRejectedValue(new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }));
+        .mockRejectedValue(
+          new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }),
+        );
 
       await expect(service.login(mockLoginDto)).rejects.toThrow(
         new ForbiddenException({ error: 'ACCOUNT_INACTIVE' }),
@@ -164,18 +174,27 @@ describe('AuthService', () => {
         revoked_at: null,
       };
 
-      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
-      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([activeStoredToken] as any);
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ user_id: 'user-id' });
+      jest
+        .spyOn(repository, 'findRefreshTokensByUserId')
+        .mockResolvedValue([activeStoredToken] as any);
       jest
         .spyOn(bcrypt, 'compare')
-        .mockImplementation(async (plain: string, hash: string) => plain === 'valid-refresh-token' && hash === 'stored-hash');
+        .mockImplementation(
+          async (plain: string, hash: string) =>
+            plain === 'valid-refresh-token' && hash === 'stored-hash',
+        );
       jest.spyOn(repository, 'findUserById').mockResolvedValue(mockUser as any);
       jest
         .spyOn(jwtService, 'signAsync')
-        .mockResolvedValueOnce('new-access-token' as never)
-        .mockResolvedValueOnce('new-refresh-token' as never);
+        .mockResolvedValueOnce('new-access-token')
+        .mockResolvedValueOnce('new-refresh-token');
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('new-refresh-hash' as never);
-      jest.spyOn(repository, 'rotateRefreshToken').mockResolvedValue(true as any);
+      jest
+        .spyOn(repository, 'rotateRefreshToken')
+        .mockResolvedValue(true as any);
 
       const result = await service.refresh(mockRefreshTokenDto);
 
@@ -194,13 +213,19 @@ describe('AuthService', () => {
         revoked_at: null,
       };
 
-      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
-      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([activeStoredToken] as any);
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ user_id: 'user-id' });
+      jest
+        .spyOn(repository, 'findRefreshTokensByUserId')
+        .mockResolvedValue([activeStoredToken] as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
       jest.spyOn(repository, 'findUserById').mockResolvedValue(mockUser as any);
-      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('token' as never);
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('token');
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('new-refresh-hash' as never);
-      const rotateSpy = jest.spyOn(repository, 'rotateRefreshToken').mockResolvedValue(true as any);
+      const rotateSpy = jest
+        .spyOn(repository, 'rotateRefreshToken')
+        .mockResolvedValue(true as any);
 
       await service.refresh(mockRefreshTokenDto);
 
@@ -213,7 +238,9 @@ describe('AuthService', () => {
     });
 
     it('should throw TOKEN_REVOKED for reused revoked refresh token', async () => {
-      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ user_id: 'user-id' });
       jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
         {
           id: 'rt-1',
@@ -230,7 +257,9 @@ describe('AuthService', () => {
     });
 
     it('should throw TOKEN_EXPIRED for expired refresh token', async () => {
-      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ user_id: 'user-id' });
       jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
         {
           id: 'rt-1',
@@ -247,7 +276,9 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException for invalid refresh token', async () => {
-      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ user_id: 'user-id' } as never);
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ user_id: 'user-id' });
       jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
         {
           id: 'rt-1',
@@ -275,11 +306,13 @@ describe('AuthService', () => {
   // ---------------------------------------------------------------------------
   describe('logout', () => {
     it('should revoke the current refresh token and return 200 payload', async () => {
-      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
-        { id: 'rt-1', token_hash: 'stored-hash' },
-      ] as any);
+      jest
+        .spyOn(repository, 'findRefreshTokensByUserId')
+        .mockResolvedValue([{ id: 'rt-1', token_hash: 'stored-hash' }] as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
-      const revokeSpy = jest.spyOn(repository, 'revokeRefreshTokenById').mockResolvedValue({ count: 1 } as any);
+      const revokeSpy = jest
+        .spyOn(repository, 'revokeRefreshTokenById')
+        .mockResolvedValue({ count: 1 });
 
       const result = await service.logout('user-id', mockLogoutDto);
 
@@ -288,11 +321,13 @@ describe('AuthService', () => {
     });
 
     it('should return 200 payload when token is already revoked/non-active (idempotent)', async () => {
-      jest.spyOn(repository, 'findRefreshTokensByUserId').mockResolvedValue([
-        { id: 'rt-1', token_hash: 'stored-hash' },
-      ] as any);
+      jest
+        .spyOn(repository, 'findRefreshTokensByUserId')
+        .mockResolvedValue([{ id: 'rt-1', token_hash: 'stored-hash' }] as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
-      jest.spyOn(repository, 'revokeRefreshTokenById').mockResolvedValue({ count: 0 } as any);
+      jest
+        .spyOn(repository, 'revokeRefreshTokenById')
+        .mockResolvedValue({ count: 0 });
 
       const result = await service.logout('user-id', mockLogoutDto);
       expect(result).toEqual({ message: 'OK' });
@@ -303,7 +338,7 @@ describe('AuthService', () => {
     it('should revoke all active refresh tokens for the user', async () => {
       const revokeAllSpy = jest
         .spyOn(repository, 'revokeAllActiveRefreshTokensByUserId')
-        .mockResolvedValue({ count: 2 } as any);
+        .mockResolvedValue({ count: 2 });
 
       const result = await service.logoutAll('user-id');
 
@@ -314,7 +349,7 @@ describe('AuthService', () => {
     it('should return 200 payload even when no active sessions exist', async () => {
       jest
         .spyOn(repository, 'revokeAllActiveRefreshTokensByUserId')
-        .mockResolvedValue({ count: 0 } as any);
+        .mockResolvedValue({ count: 0 });
 
       const result = await service.logoutAll('user-id');
       expect(result).toEqual({ message: 'OK' });
@@ -323,13 +358,23 @@ describe('AuthService', () => {
 
   describe('forgotPassword', () => {
     it('should create a 6 digit reset code and send it by email', async () => {
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
-      jest.spyOn(repository, 'findUnusedResetTokensByUserId').mockResolvedValue([]);
-      jest.spyOn(repository, 'createPasswordResetToken').mockResolvedValue({ id: 'reset-id' } as any);
+      jest
+        .spyOn(repository, 'findUserByEmail')
+        .mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(repository, 'findUnusedResetTokensByUserId')
+        .mockResolvedValue([]);
+      jest
+        .spyOn(repository, 'createPasswordResetToken')
+        .mockResolvedValue({ id: 'reset-id' } as any);
       jest.spyOn(mailService, 'sendPasswordReset').mockResolvedValue();
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-reset-code' as never);
+      jest
+        .spyOn(bcrypt, 'hash')
+        .mockResolvedValue('hashed-reset-code' as never);
 
-      const result = await service.forgotPassword({ email: 'teacher@example.com' });
+      const result = await service.forgotPassword({
+        email: 'teacher@example.com',
+      });
 
       expect(result).toEqual({ message: 'Password reset code sent' });
       expect(repository.createPasswordResetToken).toHaveBeenCalledWith(
@@ -352,15 +397,30 @@ describe('AuthService', () => {
         expires_at: new Date(Date.now() + 60_000),
       };
 
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
-      jest.spyOn(repository, 'findUnusedResetTokensByUserId').mockResolvedValue([resetToken] as any);
+      jest
+        .spyOn(repository, 'findUserByEmail')
+        .mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(repository, 'findUnusedResetTokensByUserId')
+        .mockResolvedValue([resetToken] as any);
       jest
         .spyOn(bcrypt, 'compare')
-        .mockImplementation(async (plain: string, hash: string) => plain === '123456' && hash === 'hashed-reset-code');
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-new-password' as never);
-      jest.spyOn(repository, 'updatePassword').mockResolvedValue(mockUser as any);
-      jest.spyOn(repository, 'markResetTokenAsUsed').mockResolvedValue(resetToken as any);
-      jest.spyOn(repository, 'revokeAllActiveRefreshTokensByUserId').mockResolvedValue({ count: 1 } as any);
+        .mockImplementation(
+          async (plain: string, hash: string) =>
+            plain === '123456' && hash === 'hashed-reset-code',
+        );
+      jest
+        .spyOn(bcrypt, 'hash')
+        .mockResolvedValue('hashed-new-password' as never);
+      jest
+        .spyOn(repository, 'updatePassword')
+        .mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(repository, 'markResetTokenAsUsed')
+        .mockResolvedValue(resetToken as any);
+      jest
+        .spyOn(repository, 'revokeAllActiveRefreshTokensByUserId')
+        .mockResolvedValue({ count: 1 });
 
       const result = await service.resetPassword({
         email: 'teacher@example.com',
@@ -369,9 +429,14 @@ describe('AuthService', () => {
       });
 
       expect(result).toEqual({ message: 'Password reset successfully' });
-      expect(repository.updatePassword).toHaveBeenCalledWith('user-id', 'hashed-new-password');
+      expect(repository.updatePassword).toHaveBeenCalledWith(
+        'user-id',
+        'hashed-new-password',
+      );
       expect(repository.markResetTokenAsUsed).toHaveBeenCalledWith('reset-id');
-      expect(repository.revokeAllActiveRefreshTokensByUserId).toHaveBeenCalledWith('user-id');
+      expect(
+        repository.revokeAllActiveRefreshTokensByUserId,
+      ).toHaveBeenCalledWith('user-id');
     });
 
     it('should reject a reset code that does not match', async () => {
@@ -381,8 +446,12 @@ describe('AuthService', () => {
         expires_at: new Date(Date.now() + 60_000),
       };
 
-      jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(mockUser as any);
-      jest.spyOn(repository, 'findUnusedResetTokensByUserId').mockResolvedValue([resetToken] as any);
+      jest
+        .spyOn(repository, 'findUserByEmail')
+        .mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(repository, 'findUnusedResetTokensByUserId')
+        .mockResolvedValue([resetToken] as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
       await expect(
@@ -397,14 +466,20 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should register a new user', async () => {
-      const newUser = { id: 'new-id', email: 'chandyneat9999@gmail.com' } as any;
+      const newUser = {
+        id: 'new-id',
+        email: 'chandyneat9999@gmail.com',
+      } as any;
       jest.spyOn(repository, 'findUserByEmail').mockResolvedValue(null);
       jest.spyOn(repository, 'createUser').mockResolvedValue(newUser);
       const result = await service.register({
         email: 'chandyneat9999@gmail.com',
         password: 'Password123!',
       });
-      expect(result).toEqual({ id: 'new-id', email: 'chandyneat9999@gmail.com' });
+      expect(result).toEqual({
+        id: 'new-id',
+        email: 'chandyneat9999@gmail.com',
+      });
     });
   });
 });

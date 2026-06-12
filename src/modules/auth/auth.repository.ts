@@ -33,15 +33,50 @@ export class AuthRepository {
   }
 
   async createUser(email: string, passwordHash: string) {
+    const student = await this.prisma.student.findUnique({
+      where: { email },
+    });
+
+    let entityType = 'teacher';
+    let firstName = 'Public';
+    let lastName = 'Registration';
+    let phone: string | null = null;
+    let profileImage: string | null = null;
+    let roleName = 'TUTOR';
+
+    if (student) {
+      entityType = 'student';
+      firstName = student.firstName;
+      lastName = student.lastName;
+      phone = student.phone;
+      profileImage = student.profileImage;
+      roleName = 'STUDENT';
+    }
+
+    const role = await this.prisma.role.findUnique({
+      where: { name: roleName },
+    });
+
     return this.prisma.authUser.create({
       data: {
         email,
         password_hash: passwordHash,
-        entity_type: 'teacher',
-        first_name: 'Public',
-        last_name: 'Registration',
+        entity_type: entityType,
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        profileImage,
         is_active: true,
         status: 'ACTIVE',
+        roles: role
+          ? {
+              create: {
+                role: {
+                  connect: { id: role.id },
+                },
+              },
+            }
+          : undefined,
       },
     });
   }
@@ -152,7 +187,11 @@ export class AuthRepository {
     });
   }
 
-  async createPasswordResetToken(userId: string, token_hash: string, expires_at: Date) {
+  async createPasswordResetToken(
+    userId: string,
+    token_hash: string,
+    expires_at: Date,
+  ) {
     return this.prisma.passwordResetToken.create({
       data: {
         user_id: userId,

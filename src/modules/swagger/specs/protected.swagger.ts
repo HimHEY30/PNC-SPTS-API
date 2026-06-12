@@ -20,7 +20,10 @@ export const protectedSwaggerDocument: SwaggerDocument = {
   tags: [
     { name: 'Authentication', description: 'Endpoints available after login' },
     { name: 'Users', description: 'User management endpoints' },
-    { name: 'Roles & Permissions', description: 'Roles and permissions management endpoints' },
+    {
+      name: 'Roles & Permissions',
+      description: 'Roles and permissions management endpoints',
+    },
     { name: 'System', description: 'Protected system endpoints' },
   ],
   paths: {
@@ -35,7 +38,10 @@ export const protectedSwaggerDocument: SwaggerDocument = {
               schema: {
                 type: 'object',
                 properties: {
-                  refresh_token: { type: 'string', example: 'your-refresh-token' },
+                  refresh_token: {
+                    type: 'string',
+                    example: 'your-refresh-token',
+                  },
                 },
                 required: ['refresh_token'],
               },
@@ -60,7 +66,7 @@ export const protectedSwaggerDocument: SwaggerDocument = {
         tags: ['Authentication'],
       },
     },
-   
+
     '/users': {
       get: {
         summary: 'List users',
@@ -89,7 +95,13 @@ export const protectedSwaggerDocument: SwaggerDocument = {
                   password: { type: 'string', example: 'TempPassword123!' },
                   role: { type: 'string', example: 'TUTOR' },
                 },
-                required: ['first_name', 'last_name', 'email', 'password', 'role'],
+                required: [
+                  'first_name',
+                  'last_name',
+                  'email',
+                  'password',
+                  'role',
+                ],
               },
             },
           },
@@ -280,7 +292,10 @@ export const protectedSwaggerDocument: SwaggerDocument = {
                 type: 'object',
                 properties: {
                   name: { type: 'string', example: 'CUSTOM_ROLE' },
-                  description: { type: 'string', example: 'Custom role description' },
+                  description: {
+                    type: 'string',
+                    example: 'Custom role description',
+                  },
                   permissions: {
                     type: 'array',
                     items: { type: 'string' },
@@ -340,7 +355,10 @@ export const protectedSwaggerDocument: SwaggerDocument = {
               schema: {
                 type: 'object',
                 properties: {
-                  description: { type: 'string', example: 'Updated description' },
+                  description: {
+                    type: 'string',
+                    example: 'Updated description',
+                  },
                   permissions: {
                     type: 'array',
                     items: { type: 'string' },

@@ -64,7 +64,9 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 async function main() {
   console.log('Start seeding ...');
 
-  const allPermissionNames = [...new Set(Object.values(ROLE_PERMISSIONS).flat())];
+  const allPermissionNames = [
+    ...new Set(Object.values(ROLE_PERMISSIONS).flat()),
+  ];
   await Promise.all(
     allPermissionNames.map((name) =>
       prisma.permission.upsert({
@@ -119,7 +121,7 @@ async function main() {
       roles: {
         create: {
           role: {
-            connect: { id: rolesByName.get('SUPER_ADMIN')!.id },
+            connect: { id: rolesByName.get('SUPER_ADMIN').id },
           },
         },
       },
@@ -139,7 +141,7 @@ async function main() {
       roles: {
         create: {
           role: {
-            connect: { id: rolesByName.get('ADMIN')!.id },
+            connect: { id: rolesByName.get('ADMIN').id },
           },
         },
       },
@@ -159,7 +161,7 @@ async function main() {
       roles: {
         create: {
           role: {
-            connect: { id: rolesByName.get('TUTOR')!.id },
+            connect: { id: rolesByName.get('TUTOR').id },
           },
         },
       },

@@ -7,7 +7,10 @@ import {
 import * as bcrypt from 'bcrypt';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
 import { PrismaService } from '../../database/prisma.service';
-import { canManageRole, isSupportedRole } from '../permissions/role-permission.util';
+import {
+  canManageRole,
+  isSupportedRole,
+} from '../permissions/role-permission.util';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,7 +28,7 @@ export class UsersService {
         OR: [
           { email: createUserDto.email },
           createUserDto.phone ? { phone: createUserDto.phone } : undefined,
-        ].filter(Boolean) as { email?: string; phone?: string }[],
+        ].filter(Boolean),
       },
     });
 
@@ -146,10 +149,47 @@ export class UsersService {
       },
     });
 
+    // Sync with Student table if email matches
+    if (updatedUser.email) {
+      const student = await this.prisma.student.findUnique({
+        where: { email: updatedUser.email },
+      });
+      if (student) {
+        await this.prisma.student.update({
+          where: { id: student.id },
+          data: {
+            firstName: updateUserDto.first_name !== undefined ? updateUserDto.first_name : undefined,
+            lastName: updateUserDto.last_name !== undefined ? updateUserDto.last_name : undefined,
+            phone: updateUserDto.phone !== undefined ? updateUserDto.phone : undefined,
+            profileImage: updateUserDto.profileImage !== undefined ? updateUserDto.profileImage : undefined,
+          },
+        });
+      }
+    }
+
+    // Sync with Teacher table if userId matches
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { userId: id },
+    });
+    if (teacher) {
+      await this.prisma.teacher.update({
+        where: { id: teacher.id },
+        data: {
+          firstName: updateUserDto.first_name !== undefined ? updateUserDto.first_name : undefined,
+          lastName: updateUserDto.last_name !== undefined ? updateUserDto.last_name : undefined,
+          phone: updateUserDto.phone !== undefined ? updateUserDto.phone : undefined,
+        },
+      });
+    }
+
     return this.toUserResponse(updatedUser);
   }
 
-  async assignRole(actor: AuthenticatedUser, id: string, assignRoleDto: AssignRoleDto) {
+  async assignRole(
+    actor: AuthenticatedUser,
+    id: string,
+    assignRoleDto: AssignRoleDto,
+  ) {
     this.ensureRoleCanBeManaged(actor, assignRoleDto.role);
     await this.ensureUserExists(id);
 
@@ -195,7 +235,8 @@ export class UsersService {
     await this.ensureUserExists(id);
 
     const isActive = updateUserStatusDto.status === 'ACTIVE';
-    const deletedAt = updateUserStatusDto.status === 'INACTIVE' ? new Date() : null;
+    const deletedAt =
+      updateUserStatusDto.status === 'INACTIVE' ? new Date() : null;
 
     const updatedUser = await this.prisma.authUser.update({
       where: { id },
@@ -251,7 +292,10 @@ export class UsersService {
   }
 
   private ensureRoleCanBeManaged(actor: AuthenticatedUser, targetRole: string) {
-    if (!isSupportedRole(targetRole) || !canManageRole(actor.roles, targetRole)) {
+    if (
+      !isSupportedRole(targetRole) ||
+      !canManageRole(actor.roles, targetRole)
+    ) {
       throw new ForbiddenException({
         error: 'FORBIDDEN',
         required: targetRole,

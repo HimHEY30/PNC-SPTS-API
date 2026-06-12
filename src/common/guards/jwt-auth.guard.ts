@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -7,7 +12,10 @@ import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private reflector: Reflector, private jwtService: JwtService) {}
+  constructor(
+    private reflector: Reflector,
+    private jwtService: JwtService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -19,8 +27,13 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const authHeader = request.headers['authorization'] || request.headers['Authorization'];
-    if (!authHeader || typeof authHeader !== 'string' || !authHeader.startsWith('Bearer ')) {
+    const authHeader =
+      request.headers['authorization'] || request.headers['Authorization'];
+    if (
+      !authHeader ||
+      typeof authHeader !== 'string' ||
+      !authHeader.startsWith('Bearer ')
+    ) {
       throw new UnauthorizedException({ error: 'MISSING_TOKEN' });
     }
     const token = authHeader.split(' ')[1];

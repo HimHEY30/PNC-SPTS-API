@@ -12,7 +12,8 @@ export class CreateRoleDto {
   @IsNotEmpty()
   @MaxLength(50)
   @Matches(/^[A-Z][A-Z0-9_]*$/, {
-    message: 'Role name must be UPPERCASE, alphanumeric, and can contain underscores (e.g. CUSTOM_ROLE)',
+    message:
+      'Role name must be UPPERCASE, alphanumeric, and can contain underscores (e.g. CUSTOM_ROLE)',
   })
   name: string;
 

@@ -3,9 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { appConfig, appConfigValidationSchema } from './config/app.config';
-import { databaseConfig, databaseConfigValidationSchema } from './config/database.config';
+import {
+  databaseConfig,
+  databaseConfigValidationSchema,
+} from './config/database.config';
 import { jwtConfig, jwtConfigValidationSchema } from './config/jwt.config';
-import { redisConfig, redisConfigValidationSchema } from './config/redis.config';
+import {
+  redisConfig,
+  redisConfigValidationSchema,
+} from './config/redis.config';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
@@ -13,6 +19,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SwaggerModule } from './modules/swagger/swagger.module';
 import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { StudentsModule } from './modules/students/students.module';
+import { ClassesModule } from './modules/classes/classes.module';
+import { TeachersModule } from './modules/teachers/teachers.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -41,6 +50,9 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
     SwaggerModule,
     UsersModule,
     RolesModule,
+    StudentsModule,
+    ClassesModule,
+    TeachersModule,
   ],
   controllers: [AppController],
   providers: [

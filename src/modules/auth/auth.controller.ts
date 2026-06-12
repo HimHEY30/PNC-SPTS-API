@@ -64,7 +64,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(@Req() req: Request, @Body() logoutDto: LogoutDto) {
     try {
-      return await this.authService.logout(this.getAuthenticatedUserId(req), logoutDto);
+      return await this.authService.logout(
+        this.getAuthenticatedUserId(req),
+        logoutDto,
+      );
     } catch (error: unknown) {
       if (error instanceof Error && error.message === 'VALIDATION_ERROR') {
         throw new UnprocessableEntityException({ error: 'VALIDATION_ERROR' });
@@ -81,8 +84,14 @@ export class AuthController {
 
   @Post('change-password')
   @HttpCode(HttpStatus.OK)
-  async changePassword(@Req() req: Request, @Body() changePasswordDto: ChangePasswordDto) {
-    return this.authService.changePassword(this.getAuthenticatedUserId(req), changePasswordDto);
+  async changePassword(
+    @Req() req: Request,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(
+      this.getAuthenticatedUserId(req),
+      changePasswordDto,
+    );
   }
 
   @Public()

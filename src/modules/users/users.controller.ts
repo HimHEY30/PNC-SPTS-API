@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Public } from '../../common/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -21,26 +32,29 @@ const profileImageStorage = diskStorage({
     cb(null, dir);
   },
   filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + extname(file.originalname));
   },
 });
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.create')
   @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
-  async create(@Req() req: Request, @Body() createUserDto: CreateUserDto, @UploadedFile() file?: Express.Multer.File) {
+  async create(
+    @Req() req: Request,
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
     if (file) {
-      (createUserDto as any).profileImage = `/uploads/profile-images/${file.filename}`;
+      (createUserDto as any).profileImage =
+        `/uploads/profile-images/${file.filename}`;
     }
-    return this.usersService.create(req.user as AuthenticatedUser, createUserDto);
+    return this.usersService.create(req.user, createUserDto);
   }
 
   @Get()
@@ -52,20 +66,23 @@ export class UsersController {
 
   @Get('profile')
   async getProfile(@Req() req: Request) {
-    const userId = (req.user as AuthenticatedUser).user_id;
+    const userId = req.user.user_id;
     return this.usersService.findOne(userId);
   }
 
   @Patch('profile')
   updateProfile(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-    const userId = (req.user as AuthenticatedUser).user_id;
+    const userId = req.user.user_id;
     return this.usersService.update(userId, updateUserDto);
   }
 
   @Post('profile/image')
   @Public()
   @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
-  async uploadProfileImage(@Req() req: Request, @UploadedFile() file?: Express.Multer.File) {
+  async uploadProfileImage(
+    @Req() req: Request,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
     if (!file) {
       throw new Error('No image file provided');
     }
@@ -83,9 +100,14 @@ export class UsersController {
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.update')
   @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() file?: Express.Multer.File) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
     if (file) {
-      (updateUserDto as any).profileImage = `/uploads/profile-images/${file.filename}`;
+      (updateUserDto as any).profileImage =
+        `/uploads/profile-images/${file.filename}`;
     }
     return this.usersService.update(id, updateUserDto);
   }
@@ -93,14 +115,21 @@ export class UsersController {
   @Patch(':id/role')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.assign_role')
-  assignRole(@Req() req: Request, @Param('id') id: string, @Body() assignRoleDto: AssignRoleDto) {
-    return this.usersService.assignRole(req.user as AuthenticatedUser, id, assignRoleDto);
+  assignRole(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() assignRoleDto: AssignRoleDto,
+  ) {
+    return this.usersService.assignRole(req.user, id, assignRoleDto);
   }
 
   @Patch(':id/status')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.update')
-  updateStatus(@Param('id') id: string, @Body() updateUserStatusDto: UpdateUserStatusDto) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateUserStatusDto: UpdateUserStatusDto,
+  ) {
     return this.usersService.updateStatus(id, updateUserStatusDto);
   }
 

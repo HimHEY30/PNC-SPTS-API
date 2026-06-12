@@ -15,7 +15,9 @@ describe('AuthController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ transform: true, whitelist: true }),
+    );
     await app.init();
 
     prisma = app.get<PrismaService>(PrismaService);
@@ -54,22 +56,22 @@ describe('AuthController (e2e)', () => {
     });
 
     const inactiveUser = await prisma.authUser.create({
-        data: {
-          email: 'inactive@example.com',
-          password_hash: passwordHash,
-          entity_type: 'teacher',
-          first_name: 'Inactive',
-          last_name: 'Teacher',
-          is_active: false,
-        },
-      });
+      data: {
+        email: 'inactive@example.com',
+        password_hash: passwordHash,
+        entity_type: 'teacher',
+        first_name: 'Inactive',
+        last_name: 'Teacher',
+        is_active: false,
+      },
+    });
 
-      await prisma.userRole.create({
-        data: {
-          userId: inactiveUser.id,
-          roleId: role.id,
-        },
-      });
+    await prisma.userRole.create({
+      data: {
+        userId: inactiveUser.id,
+        roleId: role.id,
+      },
+    });
   });
 
   afterAll(async () => {
@@ -95,9 +97,9 @@ describe('AuthController (e2e)', () => {
         .send({ email: 'nouser@example.com', password: 'Password123!' })
         .expect(401)
         .expect({
-            statusCode: 401,
-            message: 'Unauthorized',
-            error: 'INVALID_CREDENTIALS'
+          statusCode: 401,
+          message: 'Unauthorized',
+          error: 'INVALID_CREDENTIALS',
         });
     });
 
@@ -107,9 +109,9 @@ describe('AuthController (e2e)', () => {
         .send({ email: 'teacher@example.com', password: 'wrongpassword' })
         .expect(401)
         .expect({
-            statusCode: 401,
-            message: 'Unauthorized',
-            error: 'INVALID_CREDENTIALS'
+          statusCode: 401,
+          message: 'Unauthorized',
+          error: 'INVALID_CREDENTIALS',
         });
     });
 
@@ -119,35 +121,35 @@ describe('AuthController (e2e)', () => {
         .send({ email: 'inactive@example.com', password: 'Password123!' })
         .expect(403)
         .expect({
-            statusCode: 403,
-            message: 'Forbidden',
-            error: 'ACCOUNT_INACTIVE'
+          statusCode: 403,
+          message: 'Forbidden',
+          error: 'ACCOUNT_INACTIVE',
         });
     });
 
     it('should return 422 for invalid email format', () => {
-        return request(app.getHttpServer())
-          .post('/api/auth/login')
-          .send({ email: 'invalid-email', password: 'Password123!' })
-          .expect(422)
-          .expect({
-              statusCode: 422,
-              message: 'Unprocessable Entity',
-              error: 'VALIDATION_ERROR'
-          });
-      });
-
-      it('should return 422 for missing password', () => {
-        return request(app.getHttpServer())
-          .post('/api/auth/login')
-          .send({ email: 'teacher@example.com' })
-          .expect(422)
-          .expect({
-            statusCode: 422,
-            message: 'Unprocessable Entity',
-            error: 'VALIDATION_ERROR'
+      return request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: 'invalid-email', password: 'Password123!' })
+        .expect(422)
+        .expect({
+          statusCode: 422,
+          message: 'Unprocessable Entity',
+          error: 'VALIDATION_ERROR',
         });
-      });
+    });
+
+    it('should return 422 for missing password', () => {
+      return request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: 'teacher@example.com' })
+        .expect(422)
+        .expect({
+          statusCode: 422,
+          message: 'Unprocessable Entity',
+          error: 'VALIDATION_ERROR',
+        });
+    });
   });
 
   describe('/api/auth/logout and /api/auth/logout-all (POST)', () => {
