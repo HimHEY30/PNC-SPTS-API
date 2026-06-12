@@ -1,12 +1,11 @@
 $kind: http-request
 name: Get All Users
 method: GET
-url: '{{baseUrl}}/users'
+url: "{{base_url}}/users"
 description: List all users. Requires SUPER_ADMIN or ADMIN role with user.read permission.
 order: 2000
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.response.to.have.status(200);
@@ -38,3 +37,4 @@ scripts:
       pm.test('Response time is under 3000ms', function () {
         pm.expect(pm.response.responseTime).to.be.below(3000);
       });
+    language: text/javascript
