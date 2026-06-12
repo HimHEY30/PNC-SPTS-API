@@ -18,6 +18,6 @@ export class UserProfileController {
   @Permissions('user.profile.read')
   getProfile(@Req() req: Request): AuthenticatedUser {
     // JwtAuthGuard injects the authenticated user into req.user
-    return req.user as AuthenticatedUser;
+    return req.user;
   }
 }

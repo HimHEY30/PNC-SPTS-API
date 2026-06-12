@@ -39,7 +39,9 @@ export function requirePermission(permissionKey: string) {
         },
       });
 
-      const userPermissions = dbRoles.flatMap((r) => r.permissions.map((p) => p.name));
+      const userPermissions = dbRoles.flatMap((r) =>
+        r.permissions.map((p) => p.name),
+      );
 
       // Normalization function to handle dot, colon, and underscores
       const normalize = (perm: string) =>

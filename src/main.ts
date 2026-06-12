@@ -1,20 +1,29 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import * as swaggerUi from 'swagger-ui-express';
 import { Request, Response } from 'express';
+import { join } from 'path';
 import { HttpExceptionFilter } from './common/filters';
-import { LoggingInterceptor, TransformInterceptor } from './common/interceptors';
+import {
+  LoggingInterceptor,
+  TransformInterceptor,
+} from './common/interceptors';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // ── CORS – allow frontend dev server ──────────────────────────────────────
   app.enableCors({
     origin: 'http://localhost:5173',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+  });
+
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
   });
 
   const configService = app.get(ConfigService);
@@ -37,10 +46,15 @@ async function bootstrap() {
   // ── Global interceptors (order matters: outer → inner) ───────────────────
   // 1. LoggingInterceptor  – logs method, path, status, and elapsed time.
   // 2. TransformInterceptor – wraps successful responses in { statusCode, success, data, timestamp }.
-  app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new LoggingInterceptor(),
+    new TransformInterceptor(),
+  );
 
-  app.getHttpAdapter().get(`/${apiPrefix}/docs-auto-auth.js`, (_req: Request, res: Response) => {
-    res.type('application/javascript').send(`
+  app
+    .getHttpAdapter()
+    .get(`/${apiPrefix}/docs-auto-auth.js`, (_req: Request, res: Response) => {
+      res.type('application/javascript').send(`
       (function() {
         const TOKEN_KEY = 'swagger_auto_bearer_token';
         function applySwaggerAuth(token) {
@@ -81,7 +95,7 @@ async function bootstrap() {
         };
       })();
     `);
-  });
+    });
 
   app.use(
     `/${apiPrefix}/docs`,

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AuthRepository } from './auth.repository';
 
@@ -21,7 +25,10 @@ export class AuthLoginService {
       throw new ForbiddenException({ error: 'ACCOUNT_INACTIVE' });
     }
 
-    const isPasswordMatching = await bcrypt.compare(password, user.password_hash);
+    const isPasswordMatching = await bcrypt.compare(
+      password,
+      user.password_hash,
+    );
     if (!isPasswordMatching) {
       throw new UnauthorizedException({ error: 'INVALID_CREDENTIALS' });
     }

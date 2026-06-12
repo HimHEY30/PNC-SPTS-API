@@ -30,7 +30,10 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-    const user = await this.authLoginService.validateCredentials(email, password);
+    const user = await this.authLoginService.validateCredentials(
+      email,
+      password,
+    );
 
     const roles = user.roles.map((userRole) => userRole.role.name);
     const { accessToken, refreshToken } = await this.generateTokenPair({
@@ -79,10 +82,14 @@ export class AuthService {
       throw new UnauthorizedException({ error: 'INVALID_TOKEN' });
     }
 
-    const refreshTokens = await this.authRepository.findRefreshTokensByUserId(userId);
+    const refreshTokens =
+      await this.authRepository.findRefreshTokensByUserId(userId);
     let matchedToken: any = null;
     for (const storedToken of refreshTokens) {
-      const isMatch = await bcrypt.compare(refreshToken, storedToken.token_hash);
+      const isMatch = await bcrypt.compare(
+        refreshToken,
+        storedToken.token_hash,
+      );
       if (isMatch) {
         matchedToken = storedToken;
         break;
@@ -102,16 +109,22 @@ export class AuthService {
     }
 
     const user = await this.authRepository.findUserById(userId);
-    if (!user || !user.is_active || user.status !== 'ACTIVE' || user.deletedAt) {
+    if (
+      !user ||
+      !user.is_active ||
+      user.status !== 'ACTIVE' ||
+      user.deletedAt
+    ) {
       throw new UnauthorizedException({ error: 'INVALID_TOKEN' });
     }
 
     const roles = user.roles.map((userRole) => userRole.role.name);
-    const { accessToken, refreshToken: newRefreshToken } = await this.generateTokenPair({
-      user_id: user.id,
-      entity_type: user.entity_type,
-      roles,
-    });
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.generateTokenPair({
+        user_id: user.id,
+        entity_type: user.entity_type,
+        roles,
+      });
 
     const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 12);
     const newRefreshTokenExpiresAt = new Date();
@@ -136,7 +149,10 @@ export class AuthService {
     // Check if user already exists
     const existing = await this.authRepository.findUserByEmail(email);
     if (existing) {
-      throw new ForbiddenException({ error: 'USER_ALREADY_EXISTS', message: 'User already exists.' });
+      throw new ForbiddenException({
+        error: 'USER_ALREADY_EXISTS',
+        message: 'User already exists.',
+      });
     }
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
@@ -151,9 +167,13 @@ export class AuthService {
       throw new Error('VALIDATION_ERROR');
     }
 
-    const refreshTokens = await this.authRepository.findRefreshTokensByUserId(userId);
+    const refreshTokens =
+      await this.authRepository.findRefreshTokensByUserId(userId);
     for (const storedToken of refreshTokens) {
-      const isMatch = await bcrypt.compare(refreshToken, storedToken.token_hash);
+      const isMatch = await bcrypt.compare(
+        refreshToken,
+        storedToken.token_hash,
+      );
       if (isMatch) {
         await this.authRepository.revokeRefreshTokenById(storedToken.id);
         return { message: 'OK' };
@@ -198,23 +218,33 @@ export class AuthService {
       throw new UnauthorizedException({ error: 'USER_NOT_FOUND' });
     }
 
-    const isMatch = await bcrypt.compare(changePasswordDto.currentPassword, user.password_hash);
+    const isMatch = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password_hash,
+    );
     if (!isMatch) {
       throw new UnauthorizedException({ error: 'INVALID_CURRENT_PASSWORD' });
     }
 
-    const newPasswordHash = await bcrypt.hash(changePasswordDto.newPassword, 12);
+    const newPasswordHash = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      12,
+    );
     await this.authRepository.updatePassword(userId, newPasswordHash);
 
     return { message: 'Password changed successfully' };
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
+  async forgotPassword(
+    forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<{ message: string }> {
     const { email } = forgotPasswordDto;
     const user = await this.authRepository.findUserByEmail(email);
     if (!user) {
       console.log(`Forgot password requested for non-existing email: ${email}`);
-      return { message: 'If a user with that email exists, a reset code has been sent' };
+      return {
+        message: 'If a user with that email exists, a reset code has been sent',
+      };
     }
     const resetCode = crypto.randomInt(100000, 1000000).toString();
     const codeHash = await bcrypt.hash(resetCode, 12);
@@ -222,12 +252,18 @@ export class AuthService {
     expiresAt.setHours(expiresAt.getHours() + 1);
 
     // Invalidate any existing unused tokens before issuing a new one
-    const oldTokens = await this.authRepository.findUnusedResetTokensByUserId(user.id);
+    const oldTokens = await this.authRepository.findUnusedResetTokensByUserId(
+      user.id,
+    );
     for (const t of oldTokens) {
       await this.authRepository.markResetTokenAsUsed(t.id);
     }
 
-    await this.authRepository.createPasswordResetToken(user.id, codeHash, expiresAt);
+    await this.authRepository.createPasswordResetToken(
+      user.id,
+      codeHash,
+      expiresAt,
+    );
     await this.mailService.sendPasswordReset(email, resetCode);
     return { message: 'Password reset code sent' };
   }
@@ -242,7 +278,8 @@ export class AuthService {
     }
 
     // Only fetch unused tokens for this user
-    const unusedTokens = await this.authRepository.findUnusedResetTokensByUserId(user.id);
+    const unusedTokens =
+      await this.authRepository.findUnusedResetTokensByUserId(user.id);
     if (unusedTokens.length === 0) {
       throw new UnauthorizedException({ error: 'INVALID_RESET_TOKEN' });
     }

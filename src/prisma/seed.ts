@@ -114,7 +114,9 @@ async function assignRole(userId: string, roleId: string) {
 async function main() {
   console.log('Start seeding ...');
 
-  const allPermissionNames = [...new Set(Object.values(ROLE_PERMISSIONS).flat())];
+  const allPermissionNames = [
+    ...new Set(Object.values(ROLE_PERMISSIONS).flat()),
+  ];
   await Promise.all(
     allPermissionNames.map((name) =>
       prisma.permission.upsert({
@@ -156,33 +158,66 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('Password123!', 10);
 
-  const superAdminUser = await findOrCreateSeedUser({
-    email: 'superadmin@example.com',
-    password_hash: hashedPassword,
-    entity_type: 'super_admin',
-    first_name: 'Super',
-    last_name: 'Admin',
-    status: 'ACTIVE',
+  const superAdminUser = await prisma.authUser.upsert({
+    where: { email: 'superadmin@example.com' },
+    update: {},
+    create: {
+      email: 'superadmin@example.com',
+      password_hash: hashedPassword,
+      entity_type: 'super_admin',
+      first_name: 'Super',
+      last_name: 'Admin',
+      status: 'ACTIVE',
+      roles: {
+        create: {
+          role: {
+            connect: { id: rolesByName.get('SUPER_ADMIN')!.id },
+          },
+        },
+      },
+    },
   });
   await assignRole(superAdminUser.id, rolesByName.get('SUPER_ADMIN')!.id);
 
-  const adminUser = await findOrCreateSeedUser({
-    email: 'admin@example.com',
-    password_hash: hashedPassword,
-    entity_type: 'admin',
-    first_name: 'System',
-    last_name: 'Admin',
-    status: 'ACTIVE',
+  const adminUser = await prisma.authUser.upsert({
+    where: { email: 'admin@example.com' },
+    update: {},
+    create: {
+      email: 'admin@example.com',
+      password_hash: hashedPassword,
+      entity_type: 'admin',
+      first_name: 'System',
+      last_name: 'Admin',
+      status: 'ACTIVE',
+      roles: {
+        create: {
+          role: {
+            connect: { id: rolesByName.get('ADMIN')!.id },
+          },
+        },
+      },
+    },
   });
   await assignRole(adminUser.id, rolesByName.get('ADMIN')!.id);
 
-  const tutorUser = await findOrCreateSeedUser({
-    email: 'tutor@example.com',
-    password_hash: hashedPassword,
-    entity_type: 'teacher',
-    first_name: 'Default',
-    last_name: 'Tutor',
-    status: 'ACTIVE',
+  const tutorUser = await prisma.authUser.upsert({
+    where: { email: 'tutor@example.com' },
+    update: {},
+    create: {
+      email: 'tutor@example.com',
+      password_hash: hashedPassword,
+      entity_type: 'teacher',
+      first_name: 'Default',
+      last_name: 'Tutor',
+      status: 'ACTIVE',
+      roles: {
+        create: {
+          role: {
+            connect: { id: rolesByName.get('TUTOR')!.id },
+          },
+        },
+      },
+    },
   });
   await assignRole(tutorUser.id, rolesByName.get('TUTOR')!.id);
 

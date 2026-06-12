@@ -9,7 +9,10 @@ export const publicAuthSwaggerDocument: SwaggerDocument = {
       'Public authentication documentation. This Swagger UI shows only endpoints that can be accessed without a bearer token.',
   },
   tags: [
-    { name: 'Public Authentication', description: 'Endpoints accessible without bearer token' },
+    {
+      name: 'Public Authentication',
+      description: 'Endpoints accessible without bearer token',
+    },
   ],
   paths: {
     '/auth/register': {
@@ -70,7 +73,10 @@ export const publicAuthSwaggerDocument: SwaggerDocument = {
               schema: {
                 type: 'object',
                 properties: {
-                  refresh_token: { type: 'string', example: 'your-refresh-token' },
+                  refresh_token: {
+                    type: 'string',
+                    example: 'your-refresh-token',
+                  },
                 },
                 required: ['refresh_token'],
               },

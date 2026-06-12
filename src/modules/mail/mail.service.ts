@@ -5,7 +5,7 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class MailService implements OnModuleInit {
   private readonly logger = new Logger(MailService.name);
-  private readonly transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter | null;
 
   constructor(private readonly config: ConfigService) {
     const host = this.config.get<string>('SMTP_HOST');
@@ -18,16 +18,18 @@ export class MailService implements OnModuleInit {
     );
 
     if (!host || !port || !user || !pass) {
-      throw new Error(
-        `Missing SMTP configuration: ${[
+      this.logger.warn(
+        `SMTP not configured (missing ${[
           !host && 'SMTP_HOST',
           !port && 'SMTP_PORT',
           !user && 'SMTP_USER',
           !pass && 'SMTP_PASS',
         ]
           .filter(Boolean)
-          .join(', ')}`,
+          .join(', ')}) — email features disabled`,
       );
+      this.transporter = null;
+      return;
     }
 
     this.transporter = nodemailer.createTransport({
@@ -39,6 +41,7 @@ export class MailService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
+    if (!this.transporter) return;
     try {
       await this.transporter.verify();
       this.logger.log('SMTP connection verified ✓');
@@ -48,6 +51,10 @@ export class MailService implements OnModuleInit {
   }
 
   async sendPasswordReset(to: string, resetCode: string): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn(`Cannot send email — SMTP not configured`);
+      return;
+    }
     const from = this.config.get<string>('SMTP_FROM');
     if (!from) {
       throw new Error('SMTP_FROM is not configured');

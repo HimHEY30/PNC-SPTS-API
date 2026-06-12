@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RolesService } from './roles.service';
 import { PrismaService } from '../../database/prisma.service';
-import { ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
 describe('RolesService', () => {
   let service: RolesService;
@@ -50,7 +54,10 @@ describe('RolesService', () => {
 
   describe('create', () => {
     it('should throw ConflictException if role already exists', async () => {
-      mockPrismaService.role.findUnique.mockResolvedValue({ id: '1', name: 'ADMIN' });
+      mockPrismaService.role.findUnique.mockResolvedValue({
+        id: '1',
+        name: 'ADMIN',
+      });
 
       await expect(
         service.create({ name: 'ADMIN', description: 'desc' }),
@@ -59,7 +66,10 @@ describe('RolesService', () => {
 
     it('should create a custom role successfully', async () => {
       mockPrismaService.role.findUnique.mockResolvedValue(null);
-      mockPrismaService.permission.upsert.mockResolvedValue({ id: '1', name: 'user.read' });
+      mockPrismaService.permission.upsert.mockResolvedValue({
+        id: '1',
+        name: 'user.read',
+      });
       mockPrismaService.role.create.mockResolvedValue({
         id: 'new-role-id',
         name: 'CUSTOM_ROLE',
@@ -87,7 +97,9 @@ describe('RolesService', () => {
     it('should throw NotFoundException if role not found', async () => {
       mockPrismaService.role.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne('NON_EXISTENT')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('NON_EXISTENT')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should return role if found', async () => {
@@ -113,7 +125,9 @@ describe('RolesService', () => {
     it('should throw NotFoundException if role not found', async () => {
       mockPrismaService.role.findFirst.mockResolvedValue(null);
 
-      await expect(service.remove('NON_EXISTENT')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('NON_EXISTENT')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw BadRequestException if trying to delete a system role', async () => {
@@ -122,7 +136,9 @@ describe('RolesService', () => {
         name: 'SUPER_ADMIN',
       });
 
-      await expect(service.remove('SUPER_ADMIN')).rejects.toThrow(BadRequestException);
+      await expect(service.remove('SUPER_ADMIN')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException if role has assigned users', async () => {
@@ -132,7 +148,9 @@ describe('RolesService', () => {
       });
       mockPrismaService.userRole.count.mockResolvedValue(5);
 
-      await expect(service.remove('CUSTOM_ROLE')).rejects.toThrow(BadRequestException);
+      await expect(service.remove('CUSTOM_ROLE')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should delete role successfully', async () => {

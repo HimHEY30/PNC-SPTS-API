@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
@@ -24,7 +29,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const user = request.user as AuthenticatedUser | undefined;
+    const user = request.user;
 
     if (!user || !user.roles) {
       throw new ForbiddenException({
@@ -50,7 +55,9 @@ export class PermissionsGuard implements CanActivate {
       },
     });
 
-    const userPermissions = dbRoles.flatMap((r) => r.permissions.map((p) => p.name));
+    const userPermissions = dbRoles.flatMap((r) =>
+      r.permissions.map((p) => p.name),
+    );
 
     // Normalization function to handle dot, colon, and underscores
     const normalize = (perm: string) =>

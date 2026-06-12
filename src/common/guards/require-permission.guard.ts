@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 
 /**
@@ -39,7 +44,9 @@ export function requirePermissionGuard(permissionKey: string) {
         },
       });
 
-      const userPermissions = dbRoles.flatMap((r) => r.permissions.map((p) => p.name));
+      const userPermissions = dbRoles.flatMap((r) =>
+        r.permissions.map((p) => p.name),
+      );
 
       const normalize = (perm: string) =>
         perm.toLowerCase().replace(/_/g, '').replace(/:/g, '.');

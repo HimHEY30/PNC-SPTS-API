@@ -7,7 +7,10 @@ import * as request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from '../src/common/filters';
-import { LoggingInterceptor, TransformInterceptor } from '../src/common/interceptors';
+import {
+  LoggingInterceptor,
+  TransformInterceptor,
+} from '../src/common/interceptors';
 
 export let app: INestApplication;
 export let server: any;
@@ -20,7 +23,7 @@ export function bootstrapApp() {
     }).compile();
 
     app = moduleRef.createNestApplication();
-    
+
     // Apply same setup as main.ts
     const configService = app.get(ConfigService);
     const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
@@ -34,7 +37,10 @@ export function bootstrapApp() {
       }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());
-    app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor());
+    app.useGlobalInterceptors(
+      new LoggingInterceptor(),
+      new TransformInterceptor(),
+    );
 
     await app.init();
 

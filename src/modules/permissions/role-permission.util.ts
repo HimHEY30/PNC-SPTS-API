@@ -34,7 +34,10 @@ export function getPermissionsForRoles(roles: string[]): string[] {
   return [...permissions];
 }
 
-export function hasPermission(userRoles: string[], requiredPermission: string): boolean {
+export function hasPermission(
+  userRoles: string[],
+  requiredPermission: string,
+): boolean {
   const permissions = getPermissionsForRoles(userRoles);
 
   return permissions.some((permission) => {
@@ -51,7 +54,10 @@ export function hasPermission(userRoles: string[], requiredPermission: string): 
   });
 }
 
-export function canManageRole(userRoles: string[], targetRole: string): boolean {
+export function canManageRole(
+  userRoles: string[],
+  targetRole: string,
+): boolean {
   const highestRole = getHighestRole(userRoles);
   if (!highestRole || !isSupportedRole(targetRole)) {
     return false;

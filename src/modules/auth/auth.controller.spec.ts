@@ -49,7 +49,11 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should call authService.login and return the result', async () => {
-      const result = { access_token: 'token', refresh_token: 'refresh', expires_in: 900 };
+      const result = {
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 900,
+      };
       jest.spyOn(service, 'login').mockResolvedValue(result);
 
       expect(await controller.login(mockLoginDto)).toBe(result);
@@ -57,7 +61,9 @@ describe('AuthController', () => {
     });
 
     it('should throw UnprocessableEntityException on validation error', async () => {
-      jest.spyOn(service, 'login').mockRejectedValue(new Error('VALIDATION_ERROR'));
+      jest
+        .spyOn(service, 'login')
+        .mockRejectedValue(new Error('VALIDATION_ERROR'));
 
       await expect(controller.login(mockLoginDto)).rejects.toThrow(
         new UnprocessableEntityException({ error: 'VALIDATION_ERROR' }),
@@ -65,24 +71,30 @@ describe('AuthController', () => {
     });
 
     it('should re-throw other errors', async () => {
-        const error = new Error('Some other error');
-        jest.spyOn(service, 'login').mockRejectedValue(error);
-  
-        await expect(controller.login(mockLoginDto)).rejects.toThrow(error);
-      });
+      const error = new Error('Some other error');
+      jest.spyOn(service, 'login').mockRejectedValue(error);
+
+      await expect(controller.login(mockLoginDto)).rejects.toThrow(error);
+    });
   });
 
   describe('refresh', () => {
     it('should call authService.refresh and return the result', async () => {
-      const result = { access_token: 'token', refresh_token: 'new-refresh', expires_in: 900 };
-      jest.spyOn(service, 'refresh').mockResolvedValue(result as any);
+      const result = {
+        access_token: 'token',
+        refresh_token: 'new-refresh',
+        expires_in: 900,
+      };
+      jest.spyOn(service, 'refresh').mockResolvedValue(result);
 
       expect(await controller.refresh(mockRefreshTokenDto)).toBe(result);
       expect(service.refresh).toHaveBeenCalledWith(mockRefreshTokenDto);
     });
 
     it('should throw UnprocessableEntityException on validation error', async () => {
-      jest.spyOn(service, 'refresh').mockRejectedValue(new Error('VALIDATION_ERROR'));
+      jest
+        .spyOn(service, 'refresh')
+        .mockRejectedValue(new Error('VALIDATION_ERROR'));
 
       await expect(controller.refresh(mockRefreshTokenDto)).rejects.toThrow(
         new UnprocessableEntityException({ error: 'VALIDATION_ERROR' }),
@@ -94,7 +106,7 @@ describe('AuthController', () => {
     it('should call authService.logout and return the result', async () => {
       const result = { message: 'OK' };
       const req = { user: { user_id: 'user-id' } } as any;
-      jest.spyOn(service, 'logout').mockResolvedValue(result as any);
+      jest.spyOn(service, 'logout').mockResolvedValue(result);
 
       expect(await controller.logout(req, mockLogoutDto)).toBe(result);
       expect(service.logout).toHaveBeenCalledWith('user-id', mockLogoutDto);
@@ -102,7 +114,9 @@ describe('AuthController', () => {
 
     it('should throw UnprocessableEntityException on validation error', async () => {
       const req = { user: { user_id: 'user-id' } } as any;
-      jest.spyOn(service, 'logout').mockRejectedValue(new Error('VALIDATION_ERROR'));
+      jest
+        .spyOn(service, 'logout')
+        .mockRejectedValue(new Error('VALIDATION_ERROR'));
 
       await expect(controller.logout(req, mockLogoutDto)).rejects.toThrow(
         new UnprocessableEntityException({ error: 'VALIDATION_ERROR' }),
@@ -114,7 +128,7 @@ describe('AuthController', () => {
     it('should call authService.logoutAll and return the result', async () => {
       const result = { message: 'OK' };
       const req = { user: { user_id: 'user-id' } } as any;
-      jest.spyOn(service, 'logoutAll').mockResolvedValue(result as any);
+      jest.spyOn(service, 'logoutAll').mockResolvedValue(result);
 
       expect(await controller.logoutAll(req)).toBe(result);
       expect(service.logoutAll).toHaveBeenCalledWith('user-id');

@@ -46,9 +46,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else {
         // NestJS ValidationPipe produces { message: string[], error: string }
         message = (body.message as string | string[]) ?? exception.message;
-        error =
-          (body.error as string) ??
-          this.statusToErrorCode(statusCode);
+        error = (body.error as string) ?? this.statusToErrorCode(statusCode);
         details = body.details as Record<string, unknown> | undefined;
       }
     } else if (exception instanceof Error) {

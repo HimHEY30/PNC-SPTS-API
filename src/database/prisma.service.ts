@@ -9,6 +9,11 @@ export class PrismaService
 {
   constructor(config: ConfigService) {
     super({
+      datasources: {
+        db: {
+          url: config.get<string>('database.url'),
+        },
+      },
       log: ['error', 'warn'],
     });
   }

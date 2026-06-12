@@ -24,10 +24,12 @@ export class CloudinaryService {
     // file.path will be the local temp path, but with CloudinaryStorage we can upload directly.
     // For safety, we upload using the buffer.
     return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
-        if (error) return reject(error);
-        resolve(result?.secure_url);
-      }).end(file.buffer);
+      cloudinary.uploader
+        .upload_stream({ resource_type: 'image' }, (error, result) => {
+          if (error) return reject(error);
+          resolve(result?.secure_url);
+        })
+        .end(file.buffer);
     });
   }
 }
