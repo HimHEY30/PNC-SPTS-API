@@ -7,8 +7,11 @@ services:
     ports:
       - '3000:3000'
     command: >
-      sh -c "npx prisma migrate deploy --schema=src/prisma/schema.prisma &&
-             node dist/main"
+      sh -c "
+        npx prisma migrate deploy --schema=src/prisma/schema.prisma &&
+        npx prisma db seed &&
+        node dist/main
+      "
     env_file:
       - .env
     restart: unless-stopped
