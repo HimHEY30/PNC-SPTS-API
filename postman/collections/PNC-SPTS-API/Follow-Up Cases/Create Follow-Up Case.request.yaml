@@ -1,8 +1,11 @@
 $kind: http-request
 name: Create Follow-Up Case
 method: POST
-url: '{{baseUrl}}/follow-up/cases'
-description: 'Create a new follow-up case for a student. Requires authentication and appropriate permissions.'
+url: "{{baseUrl}}/follow-up/cases"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (limited) | STUDENT ❌
+
+  Create a new follow-up case for a student. Requires authentication and appropriate permissions.
 order: 1000
 headers:
   - key: Content-Type
@@ -11,7 +14,7 @@ auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 body:
   type: json
   content: |-

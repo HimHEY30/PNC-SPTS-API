@@ -1,8 +1,10 @@
 $kind: http-request
 name: Create Role
 method: POST
-url: '{{baseUrl}}/roles'
+url: "{{baseUrl}}/roles"
 description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
   Create a new role. Name must be UPPERCASE with underscores (e.g. CUSTOM_ROLE).
   Requires role.create permission.
 order: 1000

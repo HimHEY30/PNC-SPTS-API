@@ -1,8 +1,11 @@
 $kind: http-request
 name: Get All Permissions
 method: GET
-url: '{{baseUrl}}/permissions'
-description: List all available permissions in the system. Requires permission.read permission.
+url: "{{baseUrl}}/permissions"
+description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  List all available permissions in the system. Requires permission.read permission.
 order: 3000
 scripts:
   - type: afterResponse

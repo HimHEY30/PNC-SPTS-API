@@ -1,19 +1,22 @@
 $kind: http-request
 name: Get All Follow-Up Cases
 method: GET
-url: '{{baseUrl}}/follow-up/cases'
-description: Retrieve paginated list of follow-up cases. Supports ?page and ?limit query params.
+url: "{{baseUrl}}/follow-up/cases"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (assigned students) | STUDENT ⚠️ (own only)
+
+  Retrieve paginated list of follow-up cases. Supports ?page and ?limit query params.
 order: 2000
 queryParams:
   - key: page
-    value: '1'
+    value: "1"
   - key: limit
-    value: '10'
+    value: "10"
 auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 scripts:
   - type: afterResponse
     language: text/javascript

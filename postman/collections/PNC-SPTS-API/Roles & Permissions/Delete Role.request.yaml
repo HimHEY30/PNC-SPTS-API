@@ -1,12 +1,15 @@
 $kind: http-request
 name: Delete Role
 method: DELETE
-url: '{{baseUrl}}/roles/:id'
-description: Delete a role by ID. Requires role.delete permission.
+url: "{{baseUrl}}/roles/:id"
+description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Delete a role by ID. Requires role.delete permission.
 order: 6000
 pathVariables:
   - key: id
-    value: 'role-id-here'
+    value: role-id-here
     description: The role's UUID
 scripts:
   - type: afterResponse

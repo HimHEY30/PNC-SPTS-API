@@ -1,14 +1,17 @@
 $kind: http-request
 name: Get All Students
 method: GET
-url: '{{baseUrl}}/students?page=1&limit=10'
-description: 'Retrieve paginated list of students. Supports ?page, ?limit, ?search query params.'
+url: "{{baseUrl}}/students?page=1&limit=10"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (assigned only) | STUDENT ⚠️ (own only)
+
+  Retrieve paginated list of students. Supports ?page, ?limit, ?search query params.
 order: 2000
 auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 scripts:
   - type: afterResponse
     language: text/javascript

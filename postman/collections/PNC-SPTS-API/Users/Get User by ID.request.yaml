@@ -1,12 +1,15 @@
 $kind: http-request
 name: Get User by ID
 method: GET
-url: '{{baseUrl}}/users/:id'
-description: Get a single user by their ID. Requires SUPER_ADMIN or ADMIN role with user.read permission.
+url: "{{baseUrl}}/users/:id"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Get a single user by their ID. Requires SUPER_ADMIN or ADMIN role with user.read permission.
 order: 4000
 pathVariables:
   - key: id
-    value: 'user-id-here'
+    value: user-id-here
     description: The user's UUID
 scripts:
   - type: afterResponse

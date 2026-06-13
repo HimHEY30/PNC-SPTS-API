@@ -1,8 +1,11 @@
 $kind: http-request
 name: Create User
 method: POST
-url: '{{baseUrl}}/users'
-description: Create a new user. Requires SUPER_ADMIN or ADMIN role with user.create permission.
+url: "{{baseUrl}}/users"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Create a new user. Requires SUPER_ADMIN or ADMIN role with user.create permission.
 order: 1000
 headers:
   - key: Content-Type

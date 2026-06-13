@@ -1,8 +1,11 @@
 $kind: http-request
 name: Get My Profile
 method: GET
-url: '{{baseUrl}}/users/profile'
-description: Get the currently authenticated user's profile. Available to any authenticated user.
+url: "{{baseUrl}}/users/profile"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ✅ | STUDENT ✅
+
+  Get the currently authenticated user's profile. Available to any authenticated user.
 order: 3000
 scripts:
   - type: afterResponse

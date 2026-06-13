@@ -1,8 +1,11 @@
 $kind: http-request
 name: Create Student
 method: POST
-url: '{{baseUrl}}/students'
-description: Create a new student record. Requires authentication.
+url: "{{baseUrl}}/students"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Create a new student record. Requires authentication.
 order: 1000
 headers:
   - key: Content-Type
@@ -11,7 +14,7 @@ auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 body:
   type: json
   content: |-

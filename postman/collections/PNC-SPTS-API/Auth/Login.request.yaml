@@ -2,7 +2,10 @@ $kind: http-request
 name: Login
 method: POST
 url: "{{baseUrl}}/auth/login"
-description: Authenticate with email and password. Returns access_token and refresh_token.
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ✅ | STUDENT ✅
+
+  Authenticate with email and password. Returns access_token and refresh_token.
 auth:
   type: noauth
 order: 1000

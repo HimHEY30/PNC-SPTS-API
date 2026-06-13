@@ -1,15 +1,18 @@
 $kind: http-request
 name: Update User
 method: PATCH
-url: '{{baseUrl}}/users/:id'
-description: 'Update a user''s basic info (first_name, last_name, phone). Requires SUPER_ADMIN or ADMIN role with user.update permission.'
+url: "{{baseUrl}}/users/:id"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Update a user's basic info (first_name, last_name, phone). Requires SUPER_ADMIN or ADMIN role with user.update permission.
 order: 5000
 headers:
   - key: Content-Type
     value: application/json
 pathVariables:
   - key: id
-    value: 'user-id-here'
+    value: user-id-here
     description: The user's UUID
 body:
   type: json

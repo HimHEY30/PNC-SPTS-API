@@ -1,8 +1,11 @@
 $kind: http-request
 name: Get Health Status
 method: GET
-url: '{{baseUrl}}/health'
-description: Check the health of the API server, database, and Redis connection.
+url: "{{baseUrl}}/health"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ✅ | STUDENT ✅
+
+  Check the health of the API server, database, and Redis connection.
 auth:
   type: noauth
 order: 1000

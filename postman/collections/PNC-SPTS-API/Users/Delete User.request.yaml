@@ -1,12 +1,15 @@
 $kind: http-request
 name: Delete User
 method: DELETE
-url: '{{baseUrl}}/users/:id'
-description: Soft-delete a user. Requires SUPER_ADMIN or ADMIN role with user.delete permission.
+url: "{{baseUrl}}/users/:id"
+description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Soft-delete a user. Requires SUPER_ADMIN or ADMIN role with user.delete permission.
 order: 8000
 pathVariables:
   - key: id
-    value: 'user-id-here'
+    value: user-id-here
     description: The user's UUID
 scripts:
   - type: afterResponse

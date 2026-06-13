@@ -1,8 +1,11 @@
 $kind: http-request
 name: Update Follow-Up Case
 method: PUT
-url: '{{baseUrl}}/follow-up/cases/{{followUpCaseId}}'
-description: Update an existing follow-up case by ID. All fields are optional.
+url: "{{baseUrl}}/follow-up/cases/{{followUpCaseId}}"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (limited) | STUDENT ❌
+
+  Update an existing follow-up case by ID. All fields are optional.
 order: 4000
 headers:
   - key: Content-Type
@@ -11,7 +14,7 @@ auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 body:
   type: json
   content: |-

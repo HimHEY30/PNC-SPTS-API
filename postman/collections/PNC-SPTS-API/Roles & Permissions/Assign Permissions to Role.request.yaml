@@ -1,15 +1,18 @@
 $kind: http-request
 name: Assign Permissions to Role
 method: POST
-url: '{{baseUrl}}/roles/:id/permissions'
-description: Assign a set of permissions to a role. Requires permission.assign permission.
+url: "{{baseUrl}}/roles/:id/permissions"
+description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Assign a set of permissions to a role. Requires permission.assign permission.
 order: 7000
 headers:
   - key: Content-Type
     value: application/json
 pathVariables:
   - key: id
-    value: 'role-id-here'
+    value: role-id-here
     description: The role's UUID
 body:
   type: json

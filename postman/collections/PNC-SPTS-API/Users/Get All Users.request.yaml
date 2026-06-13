@@ -2,7 +2,10 @@ $kind: http-request
 name: Get All Users
 method: GET
 url: "{{base_url}}/users"
-description: List all users. Requires SUPER_ADMIN or ADMIN role with user.read permission.
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  List all users. Requires SUPER_ADMIN or ADMIN role with user.read permission.
 order: 2000
 scripts:
   - type: afterResponse

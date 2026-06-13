@@ -1,12 +1,15 @@
 $kind: http-request
 name: Get Role by ID
 method: GET
-url: '{{baseUrl}}/roles/:id'
-description: Get a single role by its ID. Requires role.read permission.
+url: "{{baseUrl}}/roles/:id"
+description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Get a single role by its ID. Requires role.read permission.
 order: 4000
 pathVariables:
   - key: id
-    value: 'role-id-here'
+    value: role-id-here
     description: The role's UUID
 scripts:
   - type: afterResponse

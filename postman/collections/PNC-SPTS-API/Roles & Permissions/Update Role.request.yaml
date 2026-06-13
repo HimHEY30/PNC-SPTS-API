@@ -1,15 +1,18 @@
 $kind: http-request
 name: Update Role
 method: PATCH
-url: '{{baseUrl}}/roles/:id'
-description: Update a role's description or permissions. Requires role.update permission.
+url: "{{baseUrl}}/roles/:id"
+description: |-
+  **Role Access:** ADMIN ❌ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Update a role's description or permissions. Requires role.update permission.
 order: 5000
 headers:
   - key: Content-Type
     value: application/json
 pathVariables:
   - key: id
-    value: 'role-id-here'
+    value: role-id-here
     description: The role's UUID
 body:
   type: json

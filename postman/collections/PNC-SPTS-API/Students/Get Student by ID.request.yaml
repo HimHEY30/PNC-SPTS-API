@@ -1,14 +1,17 @@
 $kind: http-request
 name: Get Student by ID
 method: GET
-url: '{{baseUrl}}/students/{{studentId}}'
-description: Retrieve a single student by their ID.
+url: "{{baseUrl}}/students/{{studentId}}"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (assigned only) | STUDENT ⚠️ (own only)
+
+  Retrieve a single student by their ID.
 order: 3000
 auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 scripts:
   - type: afterResponse
     language: text/javascript

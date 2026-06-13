@@ -1,8 +1,11 @@
 $kind: http-request
 name: Refresh Token
 method: POST
-url: '{{baseUrl}}/auth/refresh'
-description: Exchange a refresh token for a new access token.
+url: "{{baseUrl}}/auth/refresh"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ✅ | STUDENT ✅
+
+  Exchange a refresh token for a new access token.
 auth:
   type: noauth
 order: 2000

@@ -1,14 +1,17 @@
 $kind: http-request
 name: Delete Follow-Up Case
 method: DELETE
-url: '{{baseUrl}}/follow-up/cases/{{followUpCaseId}}'
-description: Delete a follow-up case by ID.
+url: "{{baseUrl}}/follow-up/cases/{{followUpCaseId}}"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Delete a follow-up case by ID.
 order: 5000
 auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 scripts:
   - type: afterResponse
     language: text/javascript

@@ -1,8 +1,11 @@
 $kind: http-request
 name: Update Student
 method: PATCH
-url: '{{baseUrl}}/students/{{studentId}}'
-description: Update an existing student record by ID.
+url: "{{baseUrl}}/students/{{studentId}}"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
+
+  Update an existing student record by ID.
 order: 4000
 headers:
   - key: Content-Type
@@ -11,7 +14,7 @@ auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{accessToken}}'
+      value: "{{accessToken}}"
 body:
   type: json
   content: |-

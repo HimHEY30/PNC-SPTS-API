@@ -1,8 +1,11 @@
 $kind: http-request
 name: Logout
 method: POST
-url: '{{baseUrl}}/auth/logout'
-description: Revoke the current refresh token. Requires authentication.
+url: "{{baseUrl}}/auth/logout"
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ✅ | STUDENT ✅
+
+  Revoke the current refresh token. Requires authentication.
 order: 3000
 headers:
   - key: Content-Type
