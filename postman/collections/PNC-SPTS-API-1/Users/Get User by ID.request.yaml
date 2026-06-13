@@ -1,0 +1,26 @@
+$kind: http-request
+description: 'Generated from cURL: curl -X GET {{base_url}}/users/{{test_user_id}} -H "Authorization: Bearer {{access_token}}"'
+url: "{{base_url}}/api/users/{{test_user_id}}/status"
+method: PATCH
+headers:
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: '{"status": "invalid_status"}'
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has user data", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+          pm.expect(json.data).to.be.an('object');
+      });
+    language: text/javascript
+order: 11000

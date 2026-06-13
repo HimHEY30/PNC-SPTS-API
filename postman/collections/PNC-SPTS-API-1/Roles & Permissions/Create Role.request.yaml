@@ -1,0 +1,37 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/roles -H \"Content-Type: application/json\" -H \"Authorization: Bearer {{access_token}}\" -d '{\"name\": \"TEST_ROLE\", \"description\": \"A test role for API testing\", \"permissions\": [\"student.read\"]}'"
+url: "{{base_url}}/api/roles"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: '{"name": "test_role", "description": "A test role"}'
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("Role created successfully", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+      pm.test("Role has name", function () {
+          const json = pm.response.json();
+          pm.expect(json.data).to.have.property('name');
+      });
+      // Save created role ID
+      const json = pm.response.json();
+      if (json.success && json.data) {
+          const roleId = json.data.id || json.data.role_id;
+          pm.collectionVariables.set('test_role_id', roleId);
+          console.log('✅ Created role ID saved: ' + roleId);
+      }
+    language: text/javascript
+order: 7000

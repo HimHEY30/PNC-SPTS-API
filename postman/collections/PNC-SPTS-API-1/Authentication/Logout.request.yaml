@@ -1,0 +1,30 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/auth/logout -H \"Content-Type: application/json\" -H \"Authorization: Bearer {{access_token}}\" -d '{\"refresh_token\": \"{{refresh_token}}\"}'"
+url: "{{base_url}}/api/auth/logout"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: '{"refresh_token": "{{refresh_token}}"}'
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 or 201", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Logout successful", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+      // Clear tokens after logout
+      pm.collectionVariables.set('access_token', '');
+      pm.collectionVariables.set('refresh_token', '');
+      console.log('🔓 Tokens cleared after logout');
+    language: text/javascript
+order: 11000

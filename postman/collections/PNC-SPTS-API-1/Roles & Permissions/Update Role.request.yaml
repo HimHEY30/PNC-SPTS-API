@@ -1,0 +1,30 @@
+$kind: http-request
+description: "Generated from cURL: curl -X PATCH {{base_url}}/roles/{{test_role_id}} -H \"Content-Type: application/json\" -H \"Authorization: Bearer {{access_token}}\" -d '{\"description\": \"Updated description for test role\"}'"
+url: "{{base_url}}/api/permissions"
+method: GET
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "description": "Updated role description",
+      "permissions": ["user.read"]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Role updated successfully", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+    language: text/javascript
+order: 5000

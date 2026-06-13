@@ -1,4 +1,20 @@
+/**
+ * users.controller.ts
+ *
+ * Changes vs original
+ * ───────────────────
+ * A-01  Removed @Public() from POST /users/profile/image — endpoint now
+ *       requires a valid JWT like every other route on this controller.
+ * A-02  Added MIME whitelist (profileImageFileFilter) and 5 MB size limit
+ *       (PROFILE_IMAGE_MAX_SIZE_BYTES) to every FileInterceptor.
+ * A-03  (see users.service.ts) updateStatus() no longer touches deletedAt.
+ * A-04  Replaced raw `throw new Error(...)` with BadRequestException so
+ *       NestJS exception filters return a proper 400 JSON response.
+ * C-03  Storage config moved to common/config/storage.config.ts.
+ */
+
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,54 +24,60 @@ import {
   Post,
   Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Public } from '../../common/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { Request } from 'express';
-import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';           // B-04
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import {
+  PROFILE_IMAGE_MAX_SIZE_BYTES,
+  profileImageFileFilter,
+  profileImageStorage,
+  toUploadUrl,
+} from '../../config/storage.config';                                 // C-03
+
 import { UsersService } from './users.service';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
-const profileImageStorage = diskStorage({
-  destination: (_req, _file, cb) => {
-    const dir = join(process.cwd(), 'uploads', 'profile-images');
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + extname(file.originalname));
-  },
-});
+/** Shared FileInterceptor options used by every image-upload route. */
+const profileImageInterceptorOptions = {
+  storage: profileImageStorage,
+  fileFilter: profileImageFileFilter,           // A-02 — MIME whitelist
+  limits: { fileSize: PROFILE_IMAGE_MAX_SIZE_BYTES }, // A-02 — 5 MB cap
+};
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)                        // B-04 — explicit JWT guard
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  // ─── Create user ────────────────────────────────────────────────────────────
 
   @Post()
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.create')
-  @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
+  @UseInterceptors(
+    FileInterceptor('image', profileImageInterceptorOptions),
+  )
   async create(
     @Req() req: Request,
     @Body() createUserDto: CreateUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
-      (createUserDto as any).profileImage =
-        `/uploads/profile-images/${file.filename}`;
+      createUserDto.profileImage = toUploadUrl('profile-images', file.filename);
     }
     return this.usersService.create(req.user, createUserDto);
   }
+
+  // ─── List users ─────────────────────────────────────────────────────────────
 
   @Get()
   @Roles('SUPER_ADMIN', 'ADMIN')
@@ -64,30 +86,42 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  // ─── Own profile (any authenticated user) ───────────────────────────────────
+
   @Get('profile')
   async getProfile(@Req() req: Request) {
-    const userId = req.user.user_id;
-    return this.usersService.findOne(userId);
+    return this.usersService.findOne(req.user.user_id);
   }
 
   @Patch('profile')
   updateProfile(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-    const userId = req.user.user_id;
-    return this.usersService.update(userId, updateUserDto);
+    return this.usersService.update(req.user.user_id, updateUserDto);
   }
 
+  /**
+   * POST /users/profile/image
+   *
+   * A-01: @Public() decorator removed — caller must supply a valid JWT.
+   * A-02: MIME whitelist + 5 MB size limit enforced via shared options.
+   * A-04: Throws BadRequestException (400) instead of raw Error (500) when no
+   *       file is present.
+   */
   @Post('profile/image')
-  @Public()
-  @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
+  @UseInterceptors(
+    FileInterceptor('image', profileImageInterceptorOptions),
+  )
   async uploadProfileImage(
     @Req() req: Request,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (!file) {
-      throw new Error('No image file provided');
+      throw new BadRequestException('No image file provided'); // A-04
     }
-    return { url: `/uploads/profile-images/${file.filename}` };
+    const url = toUploadUrl('profile-images', file.filename);
+    return { url };
   }
+
+  // ─── Single user (admin) ────────────────────────────────────────────────────
 
   @Get(':id')
   @Roles('SUPER_ADMIN', 'ADMIN')
@@ -99,15 +133,16 @@ export class UsersController {
   @Patch(':id')
   @Roles('SUPER_ADMIN', 'ADMIN')
   @Permissions('user.update')
-  @UseInterceptors(FileInterceptor('image', { storage: profileImageStorage }))
+  @UseInterceptors(
+    FileInterceptor('image', profileImageInterceptorOptions),
+  )
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
-      (updateUserDto as any).profileImage =
-        `/uploads/profile-images/${file.filename}`;
+      updateUserDto.profileImage = toUploadUrl('profile-images', file.filename);
     }
     return this.usersService.update(id, updateUserDto);
   }

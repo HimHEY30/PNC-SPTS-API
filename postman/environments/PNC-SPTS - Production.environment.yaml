@@ -1,0 +1,35 @@
+owner: "55268446"
+team: "16168828"
+lastUpdatedBy: "55268446"
+lastRevision: 1779935270000
+name: PNC-SPTS - Production
+color: null
+values:
+  - key: base_url
+    value: http://pnc-spts.example.com/api
+  - key: access_token
+    value: ""
+  - key: refresh_token
+    value: ""
+  - key: current_user_id
+    value: ""
+  - key: test_user_id
+    value: ""
+  - key: test_role_id
+    value: ""
+  - key: reset_token
+    value: ""
+  - key: superadmin_email
+    value: ""
+  - key: superadmin_password
+    value: ""
+  - key: admin_email
+    value: ""
+  - key: admin_password
+    value: ""
+  - key: tutor_email
+    value: ""
+  - key: tutor_password
+    value: ""
+createdAt: 2026-05-28T02:27:50.000Z
+updatedAt: 2026-05-28T02:27:50.000Z

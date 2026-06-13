@@ -1,0 +1,37 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/users -H \"Content-Type: application/json\" -H \"Authorization: Bearer {{access_token}}\" -d '{\"first_name\": \"Test\", \"last_name\": \"User\", \"email\": \"testuser_{{$timestamp}}@example.com\", \"password\": \"TestUser123!@\", \"role\": \"TUTOR\"}'"
+url: "{{base_url}}/api/users/{{test_user_id}}/role"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: '{"role": "tutor"}'
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("User created successfully", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+      pm.test("Created user has email", function () {
+          const json = pm.response.json();
+          pm.expect(json.data).to.have.property('email');
+      });
+      // Save created user ID
+      const json = pm.response.json();
+      if (json.success && json.data) {
+          const userId = json.data.user_id || json.data.id;
+          pm.collectionVariables.set('test_user_id', userId);
+          console.log('✅ Created user ID saved: ' + userId);
+      }
+    language: text/javascript
+order: 9000

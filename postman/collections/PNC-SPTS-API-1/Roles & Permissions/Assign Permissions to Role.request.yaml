@@ -1,0 +1,26 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/roles/{{test_role_id}}/permissions -H \"Content-Type: application/json\" -H \"Authorization: Bearer {{access_token}}\" -d '{\"permissions\": [\"student.read\", \"student.update\", \"followup.read\"]}'"
+url: "{{base_url}}/api/roles/{{test_role_id}}/permissions"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: '{"permissions": ["read:users", "write:users"]}'
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 or 201", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Permissions assigned", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+    language: text/javascript
+order: 4000

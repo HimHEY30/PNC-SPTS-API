@@ -1,0 +1,7 @@
+$kind: http-request
+description: Get the authenticated user's profile. Uses /api/user/profile (singular 'user') — different from /api/users/profile.
+url: "{{base_url}}/api/user/profile"
+method: GET
+headers:
+  Authorization: Bearer {{access_token}}
+order: 15000

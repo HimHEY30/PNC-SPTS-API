@@ -1,0 +1,25 @@
+$kind: http-request
+description: 'Generated from cURL: curl -X POST {{base_url}}/auth/logout-all -H "Authorization: Bearer {{access_token}}"'
+url: "{{base_url}}/api/auth/logout-all"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: "{}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 or 201", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("All sessions logged out", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+    language: text/javascript
+order: 13000

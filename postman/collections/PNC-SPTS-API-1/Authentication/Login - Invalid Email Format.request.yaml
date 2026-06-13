@@ -1,0 +1,10 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/auth/login -H \"Content-Type: application/json\" -d '{\"email\": \"not-an-email\", \"password\": \"Password123!\"}'"
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: '{"email": "not-an-email", "password": "Password123!"}'
+order: 4000

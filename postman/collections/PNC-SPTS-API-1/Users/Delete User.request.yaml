@@ -1,0 +1,24 @@
+$kind: http-request
+description: 'Generated from cURL: curl -X DELETE {{base_url}}/users/{{test_user_id}} -H "Authorization: Bearer {{access_token}}"'
+url: "{{base_url}}/api/users/{{test_user_id}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{access_token}}
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("User deleted successfully", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+      // Clear test_user_id after deletion
+      pm.collectionVariables.set('test_user_id', '');
+    language: text/javascript
+order: 2000

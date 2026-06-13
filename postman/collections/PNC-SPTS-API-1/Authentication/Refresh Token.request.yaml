@@ -1,0 +1,32 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/auth/refresh -H \"Content-Type: application/json\" -d '{\"refresh_token\": \"{{refresh_token}}\"}'"
+url: "{{base_url}}/api/auth/refresh"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: '{"refresh_token": "{{refresh_token}}"}'
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 or 201", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Returns new access_token", function () {
+          const json = pm.response.json();
+          pm.expect(json.data).to.have.property('access_token');
+      });
+      pm.test("Returns new refresh_token", function () {
+          const json = pm.response.json();
+          pm.expect(json.data).to.have.property('refresh_token');
+      });
+      // Save new tokens
+      const json = pm.response.json();
+      if (json.success && json.data) {
+          pm.collectionVariables.set('access_token', json.data.access_token);
+          pm.collectionVariables.set('refresh_token', json.data.refresh_token);
+          console.log('✅ Tokens refreshed and saved');
+      }
+    language: text/javascript
+order: 5000

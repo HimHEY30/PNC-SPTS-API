@@ -1,0 +1,17 @@
+$kind: collection
+name: PNC-SPTS-API
+variables:
+  access_token: ""
+  refresh_token: ""
+  current_user_id: ""
+  test_user_id: ""
+  test_role_id: ""
+scripts:
+  - type: http:beforeRequest
+    code: |-
+      // Auto-refresh token if expired (check before each request)
+      const accessToken = pm.collectionVariables.get('access_token');
+      if (!accessToken) {
+          console.log('No access token found. Run the Login request first.');
+      }
+    language: text/javascript

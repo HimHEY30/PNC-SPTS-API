@@ -1,0 +1,21 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/auth/login -H \"Content-Type: application/json\" -d '{\"password\": \"Password123!\"}'"
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: '{"password": "Password123!"}'
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 400", function () {
+          pm.response.to.have.status(400);
+      });
+      pm.test("Validation error for missing email", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.false;
+      });
+    language: text/javascript
+order: 3000

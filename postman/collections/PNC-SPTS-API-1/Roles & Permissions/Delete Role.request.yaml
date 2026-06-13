@@ -1,0 +1,23 @@
+$kind: http-request
+description: 'Generated from cURL: curl -X DELETE {{base_url}}/roles/{{test_role_id}} -H "Authorization: Bearer {{access_token}}"'
+url: "{{base_url}}/api/roles/{{test_role_id}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{access_token}}
+auth:
+  type: bearer
+  credentials:
+    token: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Role deleted successfully", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.true;
+      });
+      pm.collectionVariables.set('test_role_id', '');
+    language: text/javascript
+order: 2000

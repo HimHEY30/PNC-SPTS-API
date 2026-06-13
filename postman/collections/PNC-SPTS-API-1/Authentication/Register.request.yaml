@@ -1,0 +1,10 @@
+$kind: http-request
+description: "Public registration endpoint. Note: Always returns 403 FORBIDDEN — public registration is disabled."
+url: "{{base_url}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: '{"email": "newuser@example.com", "password": "Password123!"}'
+order: 14000

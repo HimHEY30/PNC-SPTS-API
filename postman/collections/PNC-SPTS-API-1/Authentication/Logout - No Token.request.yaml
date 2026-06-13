@@ -1,0 +1,23 @@
+$kind: http-request
+description: "Generated from cURL: curl -X POST {{base_url}}/auth/logout -H \"Content-Type: application/json\" -d '{\"refresh_token\": \"{{refresh_token}}\"}'"
+url: "{{base_url}}/api/auth/logout"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: '{"refresh_token": "{{refresh_token}}"}'
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401", function () {
+          pm.response.to.have.status(401);
+      });
+      pm.test("Unauthorized error", function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.be.false;
+      });
+    language: text/javascript
+order: 12000
