@@ -223,6 +223,56 @@ async function main() {
 
   console.log('Users created.');
 
+// Seed custom users
+const adminPassword = await bcrypt.hash('admin@12345', 10);
+const studentPassword = await bcrypt.hash('student@12345', 10);
+const teacherPassword = await bcrypt.hash('teacher@12345', 10);
+
+// Admin user (ADMIN role)
+const customAdmin = await prisma.authUser.upsert({
+  where: { email: 'chandyneat9999@gmail.com' },
+  update: {},
+  create: {
+    email: 'chandyneat9999@gmail.com',
+    password_hash: adminPassword,
+    entity_type: 'admin',
+    first_name: 'Chandy',
+    last_name: 'Neat',
+    status: 'ACTIVE',
+  },
+});
+await assignRole(customAdmin.id, rolesByName.get('ADMIN')!.id);
+
+// Student user (STUDENT role)
+const customStudent = await prisma.authUser.upsert({
+  where: { email: 'student022@gmail.com' },
+  update: {},
+  create: {
+    email: 'student022@gmail.com',
+    password_hash: studentPassword,
+    entity_type: 'student',
+    first_name: 'Student',
+    last_name: '022',
+    status: 'ACTIVE',
+  },
+});
+await assignRole(customStudent.id, rolesByName.get('STUDENT')!.id);
+
+// Teacher user (TUTOR role used for teachers)
+const customTeacher = await prisma.authUser.upsert({
+  where: { email: 'teacher001@gmail.com' },
+  update: {},
+  create: {
+    email: 'teacher001@gmail.com',
+    password_hash: teacherPassword,
+    entity_type: 'teacher',
+    first_name: 'Teacher',
+    last_name: '001',
+    status: 'ACTIVE',
+  },
+});
+await assignRole(customTeacher.id, rolesByName.get('TUTOR')!.id);
+
   // --- ACADEMIC CORE SEED DATA ---
   console.log('Seeding Academic Core data...');
 
