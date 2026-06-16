@@ -5,6 +5,30 @@ import { PrismaService } from '@/database/prisma.service';
 export class StudentsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async generateNextStudentId(): Promise<string> {
+    const lastStudent = await this.prisma.student.findFirst({
+      where: {
+        student_id: {
+          startsWith: 'S',
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    let lastNum = 0;
+    if (lastStudent && lastStudent.student_id) {
+      const match = lastStudent.student_id.match(/^S(\d+)$/);
+      if (match) {
+        lastNum = parseInt(match[1], 10);
+      }
+    }
+
+    const nextNum = lastNum + 1;
+    return `S${String(nextNum).padStart(2, '0')}`;
+  }
+
   async create(data: any) {
     if (data.studentCode) {
       const existingCode = await this.prisma.student.findFirst({
@@ -51,8 +75,11 @@ export class StudentsService {
       dobDate = new Date(data.dateOfBirth);
     }
 
+    const studentIdFormatted = await this.generateNextStudentId();
+
     const student = await this.prisma.student.create({
       data: {
+        student_id: studentIdFormatted,
         studentCode: data.studentCode,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -88,6 +115,7 @@ export class StudentsService {
 
     return {
       id: student.id,
+      student_id: student.student_id,
       studentCode: student.studentCode,
       firstName: student.firstName,
       lastName: student.lastName,
@@ -138,6 +166,7 @@ export class StudentsService {
 
     const data = rawStudents.map((s) => ({
       id: s.id,
+      student_id: s.student_id,
       studentCode: s.studentCode,
       firstName: s.firstName,
       lastName: s.lastName,
@@ -177,6 +206,7 @@ export class StudentsService {
     }
     return {
       id: student.id,
+      student_id: student.student_id,
       studentCode: student.studentCode,
       firstName: student.firstName,
       lastName: student.lastName,
@@ -270,6 +300,7 @@ export class StudentsService {
 
     return {
       id: updated.id,
+      student_id: updated.student_id,
       studentCode: updated.studentCode,
       firstName: updated.firstName,
       lastName: updated.lastName,

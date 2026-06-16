@@ -1,35 +1,35 @@
-owner: "55268446"
-team: "16168828"
-lastUpdatedBy: "55268446"
-lastRevision: 1779935268000
 name: PNC-SPTS - Development
-color: null
 values:
   - key: base_url
-    value: http://dev.pnc-spts.example.com/api
+    value: 'http://dev.pnc-spts.example.com/api'
   - key: access_token
-    value: ""
+    value: ''
   - key: refresh_token
-    value: ""
+    value: ''
   - key: current_user_id
-    value: ""
+    value: ''
   - key: test_user_id
-    value: ""
+    value: ''
   - key: test_role_id
-    value: ""
+    value: ''
   - key: reset_token
-    value: ""
+    value: ''
   - key: superadmin_email
     value: superadmin@example.com
   - key: superadmin_password
-    value: ""
+    value: ''
   - key: admin_email
     value: admin@example.com
   - key: admin_password
-    value: ""
+    value: ''
   - key: tutor_email
     value: tutor@example.com
   - key: tutor_password
-    value: ""
-createdAt: 2026-05-28T02:27:48.000Z
-updatedAt: 2026-05-28T02:27:48.000Z
+    value: ''
+  - key: token
+    value: ''
+  - key: refreshToken
+    value: ''
+  - key: teacherId
+    value: ''
+color: 0

@@ -1,0 +1,8 @@
+$kind: folder
+order: 6000
+description: |-
+  Purpose: Future self-service access.
+
+  Reserved for Student stakeholder endpoints planned for Phase 2. Student self-service access is out of scope for the current MVP.
+
+  Includes: README placeholder only until Phase 2 endpoints are implemented.

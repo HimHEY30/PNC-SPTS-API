@@ -1,0 +1,39 @@
+$kind: http-request
+name: Update My Profile
+method: PATCH
+url: '{{baseUrl}}/users/profile'
+description: |-
+  **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TEACHER ✅ | STUDENT ✅
+
+  Update the currently authenticated user's own profile (first_name, last_name, phone). Available to any authenticated user.
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "phone": "+85512345678"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response envelope is valid', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('statusCode', 200);
+        pm.expect(json).to.have.property('success', true);
+        pm.expect(json).to.have.property('data');
+        pm.expect(json).to.have.property('timestamp');
+      });
+
+      pm.test('Response time is under 3000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });

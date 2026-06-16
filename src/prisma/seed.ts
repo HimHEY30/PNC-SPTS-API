@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-dotenv.config({ override: true });
+dotenv.config();
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -260,21 +260,21 @@ async function main() {
   // 4. Teachers (Link to AuthUsers)
   const teacherTutor = await prisma.teacher.upsert({
     where: { teacherCode: 'TCH-001' },
-    update: { userId: tutorUser.id },
-    create: { teacherCode: 'TCH-001', firstName: 'Default', lastName: 'Tutor', userId: tutorUser.id }
+    update: { userId: tutorUser.id, teacher_id: 'T01' },
+    create: { teacher_id: 'T01', teacherCode: 'TCH-001', firstName: 'Default', lastName: 'Tutor', userId: tutorUser.id }
   });
 
   // 5. Students
   const studentsData = [
-    { studentCode: 'STU-001', firstName: 'Alice', lastName: 'Smith', email: 'alice@example.com', gender: 'female', classId: class1.id },
-    { studentCode: 'STU-002', firstName: 'Bob', lastName: 'Jones', email: 'bob@example.com', gender: 'male', classId: class2.id },
-    { studentCode: 'STU-003', firstName: 'Charlie', lastName: 'Brown', email: 'charlie@example.com', gender: 'male', classId: class2.id }
+    { student_id: 'S01', studentCode: 'STU-001', firstName: 'Alice', lastName: 'Smith', email: 'alice@example.com', gender: 'female', classId: class1.id },
+    { student_id: 'S02', studentCode: 'STU-002', firstName: 'Bob', lastName: 'Jones', email: 'bob@example.com', gender: 'male', classId: class2.id },
+    { student_id: 'S03', studentCode: 'STU-003', firstName: 'Charlie', lastName: 'Brown', email: 'charlie@example.com', gender: 'male', classId: class2.id }
   ];
 
   for (const stu of studentsData) {
     await prisma.student.upsert({
       where: { studentCode: stu.studentCode },
-      update: { classId: stu.classId },
+      update: { classId: stu.classId, student_id: stu.student_id },
       // @ts-ignore
       create: stu
     });

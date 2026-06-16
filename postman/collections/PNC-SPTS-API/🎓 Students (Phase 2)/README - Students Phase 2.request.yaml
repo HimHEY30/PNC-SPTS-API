@@ -1,0 +1,17 @@
+$kind: http-request
+name: README - Students Phase 2
+method: GET
+url: '{{baseUrl}}'
+description: |-
+  # Students (Phase 2)
+
+  Purpose: Future self-service access.
+
+  This folder is reserved for Student stakeholder self-service endpoints planned for Phase 2.
+
+  Student self-service functionality is out of scope for the current MVP. No active student-facing API workflows should be added here until Phase 2 begins.
+
+  Planned future examples may include viewing a student's own profile, follow-up cases, evaluations, and scores.
+auth:
+  type: noauth
+order: 1000

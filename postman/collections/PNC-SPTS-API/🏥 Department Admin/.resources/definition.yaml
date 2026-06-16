@@ -1,0 +1,8 @@
+$kind: folder
+order: 3000
+description: |-
+  Purpose: System governance and reporting.
+
+  Used by Department Admin stakeholders to manage users and oversee administrative operations. This folder contains admin-level endpoints for user management and role/permission governance.
+
+  Includes: Users, Roles & Permissions, and other admin-level endpoints.

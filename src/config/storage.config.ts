@@ -1,111 +1,135 @@
 /**
  * storage.config.ts
- * ─────────────────────────────────────────────────────────────────────────────
- * Centralised Multer storage configuration for all file-upload endpoints.
+ * src/config/storage.config.ts
  *
- * HOW LOCAL STORAGE + STATIC SERVING WORKS
- * ─────────────────────────────────────────
- * 1. Files are saved to  <project-root>/uploads/profile-images/
- * 2. In main.ts (or AppModule) register NestJS static assets:
+ * Centralised Multer storage configuration.
  *
- *      app.useStaticAssets(join(process.cwd(), 'uploads'), {
- *        prefix: '/uploads/',
- *      });
+ * Responsibilities
+ * ────────────────
+ * • diskStorage  — saves uploaded files under /uploads/profile-images/
+ * • fileFilter   — rejects non-image MIME types (JPEG, PNG, WEBP, GIF)
+ * • size cap     — 5 MB hard limit per file
+ * • toUploadUrl  — converts a stored filename to a server-relative URL
  *
- * 3. Every uploaded file is then reachable at:
- *      http(s)://<host>/uploads/profile-images/<filename>
+ * Usage
+ * ─────
+ * Import the four exports into controllers:
  *
- * 4. The path stored in the database is the relative URL path:
- *      /uploads/profile-images/<filename>
- *    Prepend your BASE_URL env var on the client when you need an absolute URL.
- *
- * WHEN DEPLOYING TO A SERVER
- * ──────────────────────────
- * • Make sure the `uploads/` directory is on a persistent volume (not wiped on
- *   deploy). On Docker: mount a named volume to /app/uploads.
- * • If you move to S3/GCS later, swap diskStorage for multer-s3 here — no
- *   controller changes needed.
+ *   import {
+ *     PROFILE_IMAGE_MAX_SIZE_BYTES,
+ *     profileImageFileFilter,
+ *     profileImageStorage,
+ *     toUploadUrl,
+ *   } from '../../config/storage.config';
  */
 
 import { BadRequestException } from '@nestjs/common';
-import { diskStorage, StorageEngine } from 'multer';
-import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────
 
-/** Maximum file size accepted for profile images (bytes). */
-export const PROFILE_IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+/** 5 MB in bytes */
+export const PROFILE_IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
-/** MIME types that are accepted for profile images. */
-export const PROFILE_IMAGE_ALLOWED_MIME = [
+/** MIME types accepted for profile images */
+const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/jpg',
   'image/png',
   'image/webp',
-];
+  'image/gif',
+]);
+
+// ── Multer disk storage ──────────────────────────────────────────────────────
 
 /**
- * URL prefix used when serving uploaded files.
- * Must match the `prefix` passed to useStaticAssets() in main.ts.
- */
-export const UPLOADS_URL_PREFIX = '/uploads';
-
-// ─── Disk storage ─────────────────────────────────────────────────────────────
-
-/**
- * Multer diskStorage engine for profile images.
+ * Saves files to  /uploads/profile-images/<uuid><ext>
  *
- * Destination: <cwd>/uploads/profile-images/
- * Filename   : <timestamp>-<random>.<ext>
+ * The destination directory must exist before the application starts.
+ * Create it with:
+ *   mkdir -p uploads/profile-images
  */
-export const profileImageStorage: StorageEngine = diskStorage({
-  destination: (_req, _file, cb) => {
-    const dir = join(process.cwd(), 'uploads', 'profile-images');
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, uniqueSuffix + extname(file.originalname));
+export const profileImageStorage = diskStorage({
+  destination: './uploads/profile-images',
+  filename: (_req, file, callback) => {
+    const uniqueName = `${uuidv4()}${extname(file.originalname).toLowerCase()}`;
+    callback(null, uniqueName);
   },
 });
 
-// ─── MIME filter ──────────────────────────────────────────────────────────────
+// ── Extension → MIME fallback ────────────────────────────────────────────────
 
 /**
- * Multer fileFilter that rejects files whose MIME type is not in the whitelist.
- * Pass this to FileInterceptor options as `fileFilter`.
+ * Maps common image file extensions to their MIME type.
+ * Used as a fallback when the client sends `application/octet-stream`.
+ */
+const EXT_TO_MIME: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+};
+
+// ── MIME whitelist ───────────────────────────────────────────────────────────
+
+/**
+ * Multer fileFilter — rejects uploads whose MIME type is not in the allowlist.
+ * A-02: throws BadRequestException (HTTP 400) for unsupported types.
+ *
+ * When a client sends a file with `application/octet-stream` (e.g. Postman,
+ * curl, or some frontend libraries that don't set per-part Content-Type),
+ * we fall back to detecting the MIME type from the file extension.
  */
 export const profileImageFileFilter = (
   _req: Express.Request,
   file: Express.Multer.File,
-  cb: (error: Error | null, acceptFile: boolean) => void,
+  callback: (error: Error | null, acceptFile: boolean) => void,
 ): void => {
-  if (PROFILE_IMAGE_ALLOWED_MIME.includes(file.mimetype)) {
-    cb(null, true);
+  let { mimetype } = file;
+
+  // Fallback: derive MIME type from the file extension when the client
+  // did not set a specific Content-Type on the multipart part.
+  if (mimetype === 'application/octet-stream') {
+    const ext = extname(file.originalname).toLowerCase();
+    mimetype = EXT_TO_MIME[ext] ?? mimetype;
+    file.mimetype = mimetype; // propagate the corrected type downstream
+  }
+
+  if (ALLOWED_MIME_TYPES.has(mimetype)) {
+    callback(null, true);
   } else {
-    cb(
+    callback(
       new BadRequestException(
-        `Unsupported file type "${file.mimetype}". ` +
-          `Allowed types: ${PROFILE_IMAGE_ALLOWED_MIME.join(', ')}.`,
+        `Unsupported image type "${mimetype}". ` +
+          `Allowed types: ${[...ALLOWED_MIME_TYPES].join(', ')}`,
       ),
       false,
     );
   }
 };
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
+// ── URL builder ──────────────────────────────────────────────────────────────
 
 /**
- * Given the filename Multer assigned, return the URL path to store in the DB
- * and return to clients.
+ * Converts a Multer-saved filename into a server-relative URL path.
  *
- * Example: toUploadUrl('profile-images', '1234-abc.jpg')
- *          → '/uploads/profile-images/1234-abc.jpg'
+ * @example
+ *   toUploadUrl('profile-images', 'abc123.jpg')
+ *   // → '/uploads/profile-images/abc123.jpg'
  */
-export function toUploadUrl(subdir: string, filename: string): string {
-  return `${UPLOADS_URL_PREFIX}/${subdir}/${filename}`;
-}
+export const toUploadUrl = (folder: string, filename: string): string =>
+  `/uploads/${folder}/${filename}`;
+
+/**
+ * Converts a relative upload path to an absolute live URL.
+ */
+export const toLiveImageUrl = (path: string | null | undefined): string | null => {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  
+  const baseUrl = process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+  return `${baseUrl.replace(/\/$/, '')}${path}`;
+};

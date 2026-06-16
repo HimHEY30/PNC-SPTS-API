@@ -1,0 +1,8 @@
+$kind: folder
+order: 5000
+description: |-
+  Purpose: Deployment and maintenance.
+
+  Used by IT Department stakeholders to verify service availability, troubleshoot deployments, and monitor basic API/system health during maintenance.
+
+  Includes: Health and Root.

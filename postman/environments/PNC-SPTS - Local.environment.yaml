@@ -1,48 +1,29 @@
-owner: "55268446"
-team: "16168828"
-lastUpdatedBy: "55268446"
-lastRevision: 1779935791000
 name: PNC-SPTS - Local
-color: null
 values:
   - key: base_url
-    value: http://localhost:3000/api
-    enabled: true
+    value: 'http://localhost:3000/api'
   - key: access_token
-    value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY21wbnRlbncxMDAyY3FvNHVtbHZycXU3ZCIsImVudGl0eV90eXBlIjoic3VwZXJfYWRtaW4iLCJyb2xlcyI6WyJTVVBFUl9BRE1JTiJdLCJpYXQiOjE3Nzk5MzU2MDYsImV4cCI6MTc3OTkzNjUwNn0.pBjpGaMPvHl7Mp3bmdj_EwKBKy4GSSzjVTXVPcBWjB0
-    enabled: true
+    value: ''
   - key: refresh_token
-    value: ""
-    enabled: true
+    value: ''
   - key: current_user_id
-    value: ""
-    enabled: true
+    value: ''
   - key: test_user_id
-    value: ""
-    enabled: true
+    value: ''
   - key: test_role_id
-    value: ""
-    enabled: true
+    value: ''
   - key: reset_token
-    value: ""
-    enabled: true
+    value: ''
   - key: superadmin_email
     value: superadmin@example.com
-    enabled: true
   - key: superadmin_password
     value: Password123!
-    enabled: true
   - key: admin_email
     value: admin@example.com
-    enabled: true
   - key: admin_password
     value: Password123!
-    enabled: true
   - key: tutor_email
     value: tutor@example.com
-    enabled: true
   - key: tutor_password
     value: Password123!
-    enabled: true
-createdAt: 2026-05-27T13:42:54.000Z
-updatedAt: 2026-05-28T02:36:31.000Z
+color: 0

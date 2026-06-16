@@ -121,6 +121,7 @@ model PasswordResetToken {
 
 model Student {
   id           String        @id @default(cuid())
+  student_id   String?       @unique
   studentCode  String        @unique
   firstName    String
   lastName     String
@@ -150,6 +151,7 @@ model Student {
 
 model Teacher {
   id          String   @id @default(cuid())
+  teacher_id  String?  @unique
   teacherCode String   @unique
   firstName   String
   lastName    String

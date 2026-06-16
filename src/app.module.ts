@@ -42,6 +42,7 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
       }),
     }),
     JwtModule.register({
+      global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: parseInt(process.env.JWT_EXPIRATION) || 900 },
     }),

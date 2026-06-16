@@ -1,0 +1,8 @@
+$kind: folder
+order: 4000
+description: |-
+  Purpose: Daily follow-up recording.
+
+  Used by Teacher stakeholders for day-to-day student follow-up workflows, including student lookup, follow-up case creation, follow-up updates, and profile access.
+
+  Includes: Follow-Up Cases, Students, and User Profile.

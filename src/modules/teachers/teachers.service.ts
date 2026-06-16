@@ -6,6 +6,30 @@ import * as bcrypt from 'bcrypt';
 export class TeachersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async generateNextTeacherId(): Promise<string> {
+    const lastTeacher = await this.prisma.teacher.findFirst({
+      where: {
+        teacher_id: {
+          startsWith: 'T',
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    let lastNum = 0;
+    if (lastTeacher && lastTeacher.teacher_id) {
+      const match = lastTeacher.teacher_id.match(/^T(\d+)$/);
+      if (match) {
+        lastNum = parseInt(match[1], 10);
+      }
+    }
+
+    const nextNum = lastNum + 1;
+    return `T${String(nextNum).padStart(2, '0')}`;
+  }
+
   async create(data: any) {
     if (data.teacherCode) {
       const existingCode = await this.prisma.teacher.findFirst({
@@ -79,8 +103,11 @@ export class TeachersService {
       });
     }
 
+    const teacherIdFormatted = await this.generateNextTeacherId();
+
     const teacher = await this.prisma.teacher.create({
       data: {
+        teacher_id: teacherIdFormatted,
         teacherCode: data.teacherCode,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -100,6 +127,7 @@ export class TeachersService {
 
     return {
       id: teacher.id,
+      teacher_id: teacher.teacher_id,
       teacherCode: teacher.teacherCode,
       firstName: teacher.firstName,
       lastName: teacher.lastName,
@@ -133,6 +161,7 @@ export class TeachersService {
 
     return teachers.map((t) => ({
       id: t.id,
+      teacher_id: t.teacher_id,
       teacherCode: t.teacherCode,
       firstName: t.firstName,
       lastName: t.lastName,
@@ -167,6 +196,7 @@ export class TeachersService {
 
     return {
       id: teacher.id,
+      teacher_id: teacher.teacher_id,
       teacherCode: teacher.teacherCode,
       firstName: teacher.firstName,
       lastName: teacher.lastName,
@@ -234,6 +264,7 @@ export class TeachersService {
 
     return {
       id: updated.id,
+      teacher_id: updated.teacher_id,
       teacherCode: updated.teacherCode,
       firstName: updated.firstName,
       lastName: updated.lastName,

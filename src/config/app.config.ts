@@ -5,6 +5,7 @@ export const appConfig = registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV,
   port: process.env.PORT,
   apiPrefix: process.env.API_PREFIX,
+  baseUrl: process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
 }));
 
 export const appConfigValidationSchema = {
@@ -13,4 +14,5 @@ export const appConfigValidationSchema = {
     .default('development'),
   PORT: Joi.number().default(3000),
   API_PREFIX: Joi.string().default('api'),
+  APP_BASE_URL: Joi.string().uri().optional(),
 };
