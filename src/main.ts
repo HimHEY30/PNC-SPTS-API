@@ -48,7 +48,7 @@ async function bootstrap() {
   // 2. TransformInterceptor – wraps successful responses in { statusCode, success, data, timestamp }.
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
-    new TransformInterceptor(),
+    new TransformInterceptor(configService),
   );
 
   app

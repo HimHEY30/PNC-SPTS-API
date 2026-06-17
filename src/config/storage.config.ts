@@ -126,10 +126,10 @@ export const toUploadUrl = (folder: string, filename: string): string =>
 /**
  * Converts a relative upload path to an absolute live URL.
  */
-export const toLiveImageUrl = (path: string | null | undefined): string | null => {
+export const toLiveImageUrl = (path: string | null | undefined, providedBaseUrl?: string): string | null => {
   if (!path) return null;
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   
-  const baseUrl = process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+  const baseUrl = providedBaseUrl || process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
   return `${baseUrl.replace(/\/$/, '')}${path}`;
 };
