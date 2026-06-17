@@ -55,6 +55,14 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'score.create',
     'score.update',
   ],
+  TEACHER: [
+    'student.read_assigned',
+    'evaluation.create',
+    'evaluation.update',
+    'evaluation.submit',
+    'score.create',
+    'score.update',
+  ],
   STUDENT: [
     'profile.read',
     'followup.read_own',

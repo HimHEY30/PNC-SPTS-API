@@ -4,6 +4,7 @@ export const ROLE_HIERARCHY = [
   'ACADEMIC_MANAGER',
   'FOLLOWUP_OFFICER',
   'TUTOR',
+  'TEACHER',
   'STUDENT',
 ] as const;
 
@@ -59,6 +60,14 @@ export const ROLE_PERMISSIONS: Record<SupportedRole, string[]> = {
     'score.create',
     'score.update',
   ],
+  TEACHER: [
+    'student.read_assigned',
+    'evaluation.create',
+    'evaluation.update',
+    'evaluation.submit',
+    'score.create',
+    'score.update',
+  ],
   STUDENT: [
     'profile.read',
     'followup.read_own',
@@ -73,11 +82,13 @@ export const ROLE_MANAGEMENT_SCOPE: Record<SupportedRole, SupportedRole[]> = {
     'ACADEMIC_MANAGER',
     'FOLLOWUP_OFFICER',
     'TUTOR',
+    'TEACHER',
     'STUDENT',
   ],
-  ADMIN: ['ACADEMIC_MANAGER', 'FOLLOWUP_OFFICER', 'TUTOR', 'STUDENT'],
-  ACADEMIC_MANAGER: ['FOLLOWUP_OFFICER', 'TUTOR', 'STUDENT'],
+  ADMIN: ['ACADEMIC_MANAGER', 'FOLLOWUP_OFFICER', 'TUTOR', 'TEACHER', 'STUDENT'],
+  ACADEMIC_MANAGER: ['FOLLOWUP_OFFICER', 'TUTOR', 'TEACHER', 'STUDENT'],
   FOLLOWUP_OFFICER: ['STUDENT'],
   TUTOR: [],
+  TEACHER: [],
   STUDENT: [],
 };

@@ -30,16 +30,12 @@ import {
   MinLength,
 } from 'class-validator';
 
-/** Supported role values — keep in sync with your Role seed data. */
-export const SUPPORTED_ROLES = [
-  'SUPER_ADMIN',
-  'ADMIN',
-  'TEACHER',
-  'STUDENT',
-  'STAFF',
-] as const;
+import { ROLE_HIERARCHY, SupportedRole } from '../../permissions/rbac.constants';
 
-export type SupportedRole = (typeof SUPPORTED_ROLES)[number];
+/** Supported role values — keep in sync with your Role seed data. */
+export const SUPPORTED_ROLES = ROLE_HIERARCHY;
+
+export { SupportedRole };
 
 export class CreateUserDto {
   // ── Identity ──────────────────────────────────────────────────────────────

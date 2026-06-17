@@ -41,6 +41,7 @@ import { Request } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { ROLE_HIERARCHY } from '../permissions/rbac.constants';
 import {
   PROFILE_IMAGE_MAX_SIZE_BYTES,
   profileImageFileFilter,
@@ -155,7 +156,7 @@ export class UsersController {
         phone: { type: 'string', example: '+85512345678' },
         role: {
           type: 'string',
-          enum: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT', 'STAFF'],
+          enum: [...ROLE_HIERARCHY],
           example: 'STUDENT',
         },
         image: {
