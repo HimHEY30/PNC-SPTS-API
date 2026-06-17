@@ -1,11 +1,10 @@
 $kind: http-request
-method: POST
-url: "{{baseUrl}}/users"
 description: |-
   **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TEACHER ❌ | STUDENT ❌
 
   Create a new user. Requires SUPER_ADMIN or ADMIN role with user.create permission. Valid roles are SUPER_ADMIN, ADMIN, TEACHER, STUDENT, STAFF. Submit as multipart/form-data; provide either an `image` file or `profileImageUrl`.
-order: 1781600141612
+url: "{{baseUrl}}/users"
+method: POST
 body:
   type: formdata
   content:
@@ -34,7 +33,8 @@ body:
     - type: file
       key: image
       src: C:/Users/LOQ/Pictures/12345fdf7fbe1697b8f3b891fc247c36 (1).jpg
-      description: Optional profile image file (JPEG/PNG/WEBP/GIF, max 5MB). Takes priority over profileImageUrl.
+      description: Optional profile image file (JPEG/PNG/WEBP/GIF, max 5MB). Takes
+        priority over profileImageUrl.
 scripts:
   - type: afterResponse
     code: |-
@@ -76,3 +76,4 @@ scripts:
         }
       }
     language: text/javascript
+order: 1583
