@@ -6,7 +6,7 @@ description: |-
   **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ❌ | STUDENT ❌
 
   Delete a follow-up case by ID.
-order: 5000
+order: 6000
 auth:
   type: bearer
   credentials:

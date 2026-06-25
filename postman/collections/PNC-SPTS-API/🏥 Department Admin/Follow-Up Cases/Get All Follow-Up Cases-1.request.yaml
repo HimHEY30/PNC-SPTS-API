@@ -1,25 +1,20 @@
 $kind: http-request
 name: Get All Follow-Up Cases
-method: GET
-url: "{{baseUrl}}/follow-up/cases"
 description: |-
   **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (assigned students) | STUDENT ⚠️ (own only)
 
   Retrieve paginated list of follow-up cases. Supports ?page and ?limit query params.
-order: 3000
+url: "{{baseUrl}}/follow-up/cases"
+method: GET
 queryParams:
-  - key: page
-    value: "1"
-  - key: limit
-    value: "10"
+  page: "1"
+  limit: "10"
 auth:
   type: bearer
   credentials:
-    - key: token
-      value: "{{accessToken}}"
+    token: "{{accessToken}}"
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.response.to.have.status(200);
@@ -54,3 +49,5 @@ scripts:
       pm.test('Response time is under 3000ms', function () {
         pm.expect(pm.response.responseTime).to.be.below(3000);
       });
+    language: text/javascript
+order: 2824

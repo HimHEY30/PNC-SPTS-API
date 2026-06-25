@@ -6,7 +6,7 @@ description: |-
   **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (assigned students) | STUDENT ⚠️ (own only)
 
   Retrieve a single follow-up case by its ID.
-order: 3000
+order: 4000
 auth:
   type: bearer
   credentials:

@@ -15,6 +15,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.client = new Redis({
       host,
       port: Number(port),
+      maxRetriesPerRequest: null,
     });
   }
 

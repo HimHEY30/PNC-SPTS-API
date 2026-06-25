@@ -6,7 +6,7 @@ description: |-
   **Role Access:** ADMIN ✅ | SUPER_ADMIN ✅ | TUTOR ⚠️ (limited) | STUDENT ❌
 
   Update an existing follow-up case by ID. All fields are optional.
-order: 4000
+order: 5000
 headers:
   - key: Content-Type
     value: application/json

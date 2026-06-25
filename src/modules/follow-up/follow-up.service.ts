@@ -36,9 +36,12 @@ export class FollowUpService {
   }
 
   async getBoardData() {
-    const cached = await this.redis.get<any>(BOARD_CACHE_KEY);
-    if (cached) {
-      return cached;
+    // Try Redis cache first — fail silently if Redis is unavailable
+    try {
+      const cached = await this.redis.get<any>(BOARD_CACHE_KEY);
+      if (cached) return cached;
+    } catch {
+      // Redis unavailable — skip cache, hit DB directly
     }
 
     const cases = await this.repository.findBoardData();
@@ -49,8 +52,13 @@ export class FollowUpService {
       CLOSED: cases.filter((c) => c.status === FollowUpStatus.CLOSED),
     };
 
-    // Cache with TTL of 5 minutes (300 seconds)
-    await this.redis.set(BOARD_CACHE_KEY, grouped, 300);
+    // Cache with TTL of 5 minutes — fail silently if Redis is unavailable
+    try {
+      await this.redis.set(BOARD_CACHE_KEY, grouped, 300);
+    } catch {
+      // Redis unavailable — skip caching
+    }
+
     return grouped;
   }
 
@@ -125,6 +133,10 @@ export class FollowUpService {
   }
 
   private async invalidateCache() {
-    await this.redis.del(BOARD_CACHE_KEY);
+    try {
+      await this.redis.del(BOARD_CACHE_KEY);
+    } catch {
+      // Redis unavailable — skip invalidation
+    }
   }
 }
