@@ -507,6 +507,55 @@ export const protectedSwaggerDocument: SwaggerDocument = {
         tags: ['Students'],
       },
     },
+    '/follow-up/board': {
+      get: {
+        summary: 'Get follow-up cases grouped by status for the Kanban board',
+        security: [{ bearerAuth: [] }],
+        responses: { '200': { description: 'Grouped follow-up cases return.' } },
+        tags: ['Follow-Up'],
+      },
+    },
+    '/follow-up/board/move/{id}': {
+      patch: {
+        summary: 'Move follow-up case (drag and drop)',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            description: 'The UUID of the follow-up case to move',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: {
+                    type: 'string',
+                    enum: ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'],
+                    example: 'IN_PROGRESS',
+                  },
+                },
+                required: ['status'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Case moved successfully.' },
+          '400': { description: 'Bad request / Invalid status or transition.' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Case not found.' },
+        },
+        tags: ['Follow-Up'],
+      },
+    },
     '/follow-up/cases': {
       get: {
         summary: 'Get paginated list of follow-up cases',

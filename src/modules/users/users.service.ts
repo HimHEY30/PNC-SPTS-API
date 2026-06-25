@@ -319,7 +319,7 @@ export class UsersService {
       email: user.email,
       phone: user.phone,
       profile_image: user.profileImage,
-      entity_type: user.entity_type,
+      role_user: user.entity_type,
       is_active: user.is_active,
       status: user.status,
       last_login_at: user.last_login_at,
