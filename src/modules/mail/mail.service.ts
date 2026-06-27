@@ -80,4 +80,32 @@ export class MailService implements OnModuleInit {
       throw err;
     }
   }
+
+  async sendMail(options: {
+    to: string;
+    subject: string;
+    html: string;
+    text?: string;
+  }): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn(`Cannot send email to ${options.to} — SMTP not configured`);
+      return;
+    }
+
+    const from = this.config.get<string>('SMTP_FROM');
+    if (!from) {
+      throw new Error('SMTP_FROM is not configured');
+    }
+
+    try {
+      await this.transporter.sendMail({
+        from,
+        ...options,
+      });
+      this.logger.log(`Email sent to ${options.to}: ${options.subject}`);
+    } catch (err) {
+      this.logger.error(`Failed to send email to ${options.to}`, err);
+      throw err;
+    }
+  }
 }

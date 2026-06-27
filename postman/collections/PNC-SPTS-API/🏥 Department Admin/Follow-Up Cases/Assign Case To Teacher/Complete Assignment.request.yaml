@@ -1,0 +1,12 @@
+$kind: http-request
+name: Complete Assignment
+url: "{{baseUrl}}/follow-up/{{caseId}}/complete"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"summary\": \"Student attendance has improved.\"\r
+
+    }"
+order: 4213991563489637

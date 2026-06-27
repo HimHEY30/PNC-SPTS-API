@@ -2,8 +2,8 @@ cloudResources:
   collections:
     ../postman/collections/PNC-SPTS-API: 55268446-519318ff-846b-403b-ace9-fd637896ca0e
   environments:
-    ../postman/environments/api-stgs-pnc.environment.yaml: 55268446-b8d7aea7-0dd1-44f1-acf9-fec3e0e19c38
+    ../postman/environments/api-stgs-pnc.environment.yaml: 55268446-f141eaf0-0e74-4069-96e3-f3afb363e8b7
     ../postman/environments/PNC-SPTS - Development.environment.yaml: 55268446-86e4bf0f-e6bb-42f1-8598-923dcd2e6461
-    ../postman/environments/PNC-SPTS - Local.environment.yaml: 55268446-50ccc14d-3a64-4634-90cb-2c2d242418ca
+    ../postman/environments/PNC-SPTS - Local.environment.yaml: 55268446-c244bd4d-7a62-4372-9315-60bc8e378e98
     ../postman/environments/PNC-SPTS - Production.environment.yaml: 55268446-35ea4a4f-c86d-4057-9075-5313ee5e01ab
     ../postman/environments/PNC-SPTS - Staging.environment.yaml: 55268446-741e2831-2c5a-4d54-96ac-f74c53b2342f

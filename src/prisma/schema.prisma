@@ -8,6 +8,20 @@ enum FollowUpStatus {
   CLOSED
 }
 
+enum FollowUpAssignmentStatus {
+  PENDING
+  ACCEPTED
+  COMPLETED
+  REJECTED
+}
+
+enum AuditAction {
+  CASE_ASSIGNED
+  CASE_ACCEPTED
+  CASE_REJECTED
+  CASE_COMPLETED
+}
+
 
 
 
@@ -47,6 +61,21 @@ model AuthUser {
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[] @relation("UserPasswordResetTokens")
   teacher             Teacher?
+
+  // Social Links
+  twitter_url   String? @map("twitter_url")
+  facebook_url  String? @map("facebook_url")
+  linkedin_url  String? @map("linkedin_url")
+  pinterest_url String? @map("pinterest_url")
+
+  // New Relations
+  activities   ActivityTimeline[]
+  tasks        ProjectTask[]
+  sharedAssets SharedAsset[]
+  assignedFollowUpCasesByMe FollowUpCaseAssignment[] @relation("FollowUpCaseAssignedBy")
+  assignedFollowUpCasesToMe FollowUpCaseAssignment[] @relation("FollowUpCaseAssignedTo")
+  auditLogs AuditLog[]
+  notifications Notification[]
 
   @@map("auth_users")
 }
@@ -254,6 +283,7 @@ model FollowUpCase {
   caseTypeMap FollowUpCaseTypeMap[]
   reports     FollowUpReport[]
   removals    FollowUpRemoval[]
+  assignments FollowUpCaseAssignment[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -268,6 +298,30 @@ model FollowUpCase {
   @@index([studentId])
   @@index([openedByTeacherId])
   @@index([termId])
+}
+
+model FollowUpCaseAssignment {
+  id               String                   @id @default(cuid())
+  caseId           String
+  assignedByUserId String
+  assignedToUserId String
+  assignedAt       DateTime                 @default(now())
+  acceptedAt       DateTime?
+  completedAt      DateTime?
+  status           FollowUpAssignmentStatus @default(PENDING)
+  remarks          String?                  @db.Text
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  followUpCase FollowUpCase @relation(fields: [caseId], references: [id])
+  assignedBy   AuthUser     @relation("FollowUpCaseAssignedBy", fields: [assignedByUserId], references: [id])
+  assignedTo   AuthUser     @relation("FollowUpCaseAssignedTo", fields: [assignedToUserId], references: [id])
+
+  @@index([caseId])
+  @@index([assignedByUserId])
+  @@index([assignedToUserId])
+  @@index([status])
+  @@map("follow_up_case_assignments")
 }
 
 model FollowUpCaseType {
@@ -498,4 +552,83 @@ enum AuthUserStatus {
   INACTIVE
   SUSPENDED
   LOCKED
+}
+
+model ActivityTimeline {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  eventDate    DateTime @default(now()) @map("event_date")
+  actionTitle  String   @map("action_title")
+  targetName   String   @map("target_name")
+  targetUrl    String?  @map("target_url")
+  categoryType String   @map("category_type")
+  priority     String   @map("priority") // 'Critical', 'High', 'Medium', 'Low'
+
+  user AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("activity_timelines")
+}
+
+model ProjectTask {
+  id                    String    @id @default(cuid())
+  title                 String
+  isCompleted           Boolean   @default(false) @map("is_completed")
+  completedSubtasksCount Int       @default(0) @map("completed_subtasks_count")
+  totalSubtasksCount    Int       @default(0) @map("total_subtasks_count")
+  commentsCount         Int       @default(0) @map("comments_count")
+
+  collaborators AuthUser[]
+
+  @@map("project_tasks")
+}
+
+model SharedAsset {
+  id          String   @id @default(cuid())
+  filename    String
+  categoryTag String   @map("category_tag") // e.g. 'Design', 'Documents'
+  storageUrl  String   @map("storage_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users AuthUser[]
+
+  @@map("shared_assets")
+}
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  userId         String
+  userName       String?
+  action         AuditAction
+  entityType     String
+  entityId       String
+  previousStatus String?
+  newStatus      String?
+  createdAt      DateTime    @default(now())
+
+  user AuthUser @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model Notification {
+  id         String    @id @default(cuid())
+  userId     String
+  title      String
+  message    String    @db.Text
+  type       String
+  entityType String?
+  entityId   String?
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user AuthUser @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@map("notifications")
 }

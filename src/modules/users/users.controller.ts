@@ -54,6 +54,7 @@ import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 
 // ── Shared Multer options ────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ const profileImageInterceptorOptions = {
 
 // ── Reusable Swagger schema for update endpoints ─────────────────────────────
 
+/** Used for PATCH /users/:id (admin — no social links) */
 const UPDATE_USER_FORM_DATA_SCHEMA = {
   type: 'object',
   properties: {
@@ -93,6 +95,39 @@ const UPDATE_USER_FORM_DATA_SCHEMA = {
   },
 } as const;
 
+/** Used for PATCH /users/profile (own profile — includes social links) */
+const UPDATE_PROFILE_FORM_DATA_SCHEMA = {
+  type: 'object',
+  properties: {
+    first_name: { type: 'string', maxLength: 100, example: 'Chandy' },
+    last_name: { type: 'string', maxLength: 100, example: 'Neat' },
+    phone: {
+      type: 'string',
+      description: 'E.164 format (e.g. +85512345678)',
+      example: '+85512345678',
+    },
+    image: {
+      type: 'string',
+      format: 'binary',
+      description:
+        'New profile image file (JPEG / PNG / WEBP / GIF, max 5 MB). ' +
+        'Takes priority over profileImageUrl.',
+    },
+    profileImageUrl: {
+      type: 'string',
+      format: 'uri',
+      maxLength: 2048,
+      description:
+        'Publicly accessible image URL. Used only when no file is uploaded.',
+      example: 'https://example.com/new-avatar.jpg',
+    },
+    twitter_url: { type: 'string', example: 'https://twitter.com/username' },
+    facebook_url: { type: 'string', example: 'https://facebook.com/username' },
+    linkedin_url: { type: 'string', example: 'https://linkedin.com/in/username' },
+    pinterest_url: { type: 'string', example: 'https://pinterest.com/username' },
+  },
+} as const;
+
 // ── Shared image resolver ────────────────────────────────────────────────────
 
 /**
@@ -105,7 +140,7 @@ const UPDATE_USER_FORM_DATA_SCHEMA = {
  *   3. undefined    → service leaves the existing value unchanged
  */
 function resolveProfileImage(
-  dto: UpdateUserDto,
+  dto: UpdateUserDto | UpdateUserProfileDto,
   file?: Express.Multer.File,
 ): void {
   if (file) {
@@ -203,9 +238,13 @@ export class UsersController {
   // ── Own profile ────────────────────────────────────────────────────────────
 
   @Get('profile')
-  @ApiOperation({ summary: "Get the current user's own profile" })
+  @ApiOperation({
+    summary: "Get the current user's own profile",
+    description: 'Returns a rich profile including social links, recent activities, assigned tasks, and uploaded files.',
+  })
+  @ApiResponse({ status: 200, description: 'Profile details retrieved successfully.' })
   async getProfile(@Req() req: Request) {
-    return this.usersService.findOne(req.user.user_id);
+    return this.usersService.getUserProfile(req.user.user_id);
   }
 
   /**
@@ -218,6 +257,9 @@ export class UsersController {
    *   • Upload a file  → `image` (file field)
    *   • Supply a URL   → `profileImageUrl` (text field)
    *   • Omit both      → existing image is preserved
+   *
+   * Social links (optional):
+   *   twitter_url, facebook_url, linkedin_url, pinterest_url
    */
   @Patch('profile')
   @UseInterceptors(FileInterceptor('image', profileImageInterceptorOptions))
@@ -226,19 +268,20 @@ export class UsersController {
     description:
       'Submit as **multipart/form-data**. All fields are optional. ' +
       'To change the profile image supply either a file (`image`) or a ' +
-      'remote URL (`profileImageUrl`). Omit both to keep the current image.',
+      'remote URL (`profileImageUrl`). Omit both to keep the current image. ' +
+      'Social links (twitter_url, facebook_url, linkedin_url, pinterest_url) are also supported.',
   })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ schema: UPDATE_USER_FORM_DATA_SCHEMA })
+  @ApiBody({ schema: UPDATE_PROFILE_FORM_DATA_SCHEMA })
   @ApiResponse({ status: 200, description: 'Profile updated successfully.' })
   @ApiResponse({ status: 400, description: 'Validation error or unsupported file type.' })
   async updateProfile(
     @Req() req: Request,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() dto: UpdateUserProfileDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    resolveProfileImage(updateUserDto, file);
-    return this.usersService.update(req.user.user_id, updateUserDto);
+    resolveProfileImage(dto, file);
+    return this.usersService.updateUserProfile(req.user.user_id, dto);
   }
 
   // ── Upload own profile image (file-only dedicated endpoint) ───────────────
@@ -266,6 +309,12 @@ export class UsersController {
       throw new BadRequestException('No image file provided');
     }
     const url = toUploadUrl('profile-images', file.filename);
+
+    // Persist the new image URL to the user's profile in the database
+    await this.usersService.updateUserProfile(req.user.user_id, {
+      profileImage: url,
+    });
+
     return { url };
   }
 

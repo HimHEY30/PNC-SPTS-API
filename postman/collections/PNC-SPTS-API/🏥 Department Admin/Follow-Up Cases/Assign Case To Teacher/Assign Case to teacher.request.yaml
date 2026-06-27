@@ -1,0 +1,12 @@
+$kind: http-request
+name: Assign Case to teacher
+url: "{{baseUrl}}/follow-up/{{caseId}}/assign"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"teacherId\": \"{{teacherId}}\"\r
+
+    }"
+order: 1782547895055

@@ -9,6 +9,7 @@ variables:
   accessToken: ""
   refreshToken: ""
   userId: ""
+  followUpCaseId: ""
 auth:
   type: bearer
   credentials:

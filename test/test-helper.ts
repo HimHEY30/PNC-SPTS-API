@@ -39,7 +39,7 @@ export function bootstrapApp() {
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(
       new LoggingInterceptor(),
-      new TransformInterceptor(),
+      new TransformInterceptor(configService),
     );
 
     await app.init();

@@ -1,0 +1,14 @@
+$kind: http-request
+name: Upload One Attachment
+url: "{{baseUrl}}/follow-up/reports/{{reportId}}/attachment"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - /C:/Users/LOQ/Downloads/getx.pdf
+      description: ""
+      disabled: false
+order: 1782533794865

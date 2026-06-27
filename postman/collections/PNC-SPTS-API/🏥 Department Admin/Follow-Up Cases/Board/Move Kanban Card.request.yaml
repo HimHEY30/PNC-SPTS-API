@@ -1,0 +1,12 @@
+$kind: http-request
+name: Move Kanban Card
+url: "{{baseUrl}}/follow-up/board/move/{{caseId}}"
+method: PATCH
+body:
+  type: json
+  content: "{\r
+
+    \    \"status\":\"IN_PROGRESS\"\r
+
+    }"
+order: 1250

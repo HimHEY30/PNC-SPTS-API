@@ -5,17 +5,17 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 export class UpdateFollowUpCaseDto {
   @ApiPropertyOptional({ description: 'The UUID of the student' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   studentId?: string;
 
   @ApiPropertyOptional({ description: 'The UUID of the teacher who opened the case' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   openedByTeacherId?: string;
 
   @ApiPropertyOptional({ description: 'The UUID of the academic term' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   termId?: string;
 
   @ApiPropertyOptional({ example: 'Poor attendance', description: 'Title of the follow-up case' })

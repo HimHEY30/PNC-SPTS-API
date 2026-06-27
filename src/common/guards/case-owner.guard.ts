@@ -27,7 +27,7 @@ export class CaseOwnerGuard implements CanActivate {
       return true;
     }
 
-    const caseId = request.params.id;
+    const caseId = request.params.id ?? request.params.caseId;
     if (!caseId) {
       return true;
     }

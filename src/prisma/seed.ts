@@ -167,10 +167,10 @@ async function main() {
   const hashedPassword = await bcrypt.hash('Password123!', 10);
 
   const superAdminUser = await prisma.authUser.upsert({
-    where: { email: 'superadmin@example.com' },
+    where: { email: 'chandy.neat@student.passerellesnumeriques.org' },
     update: {},
     create: {
-      email: 'superadmin@example.com',
+      email: 'chandy.neat@student.passerellesnumeriques.org',
       password_hash: hashedPassword,
       entity_type: 'super_admin',
       first_name: 'Super',
@@ -188,10 +188,10 @@ async function main() {
   await assignRole(superAdminUser.id, rolesByName.get('SUPER_ADMIN')!.id);
 
   const adminUser = await prisma.authUser.upsert({
-    where: { email: 'admin@example.com' },
+    where: { email: 'chandyneat9@gmail.com' },
     update: {},
     create: {
-      email: 'admin@example.com',
+      email: 'chandyneat9@gmail.com',
       password_hash: hashedPassword,
       entity_type: 'admin',
       first_name: 'System',
@@ -209,10 +209,10 @@ async function main() {
   await assignRole(adminUser.id, rolesByName.get('ADMIN')!.id);
 
   const tutorUser = await prisma.authUser.upsert({
-    where: { email: 'tutor@example.com' },
+    where: { email: 'chandyneat180@gmail.com' },
     update: {},
     create: {
-      email: 'tutor@example.com',
+      email: 'chandyneat180@gmail.com',
       password_hash: hashedPassword,
       entity_type: 'teacher',
       first_name: 'Default',
@@ -239,7 +239,12 @@ const teacherPassword = await bcrypt.hash('teacher@12345', 10);
 // Admin user (ADMIN role)
 const customAdmin = await prisma.authUser.upsert({
   where: { email: 'chandyneat9999@gmail.com' },
-  update: {},
+  update: {
+    twitter_url: 'https://twitter.com/chandyneat',
+    facebook_url: 'https://facebook.com/chandyneat',
+    linkedin_url: 'https://linkedin.com/in/chandyneat',
+    pinterest_url: 'https://pinterest.com/chandyneat',
+  },
   create: {
     email: 'chandyneat9999@gmail.com',
     password_hash: adminPassword,
@@ -247,6 +252,10 @@ const customAdmin = await prisma.authUser.upsert({
     first_name: 'Chandy',
     last_name: 'Neat',
     status: 'ACTIVE',
+    twitter_url: 'https://twitter.com/chandyneat',
+    facebook_url: 'https://facebook.com/chandyneat',
+    linkedin_url: 'https://linkedin.com/in/chandyneat',
+    pinterest_url: 'https://pinterest.com/chandyneat',
   },
 });
 await assignRole(customAdmin.id, rolesByName.get('ADMIN')!.id);
@@ -271,7 +280,7 @@ const customTeacher = await prisma.authUser.upsert({
   where: { email: 'teacher001@gmail.com' },
   update: {},
   create: {
-    email: 'teacher001@gmail.com',
+    email: 'codingweb375@gmail.com',
     password_hash: teacherPassword,
     entity_type: 'teacher',
     first_name: 'Teacher',
@@ -392,6 +401,84 @@ await assignRole(customTeacher.id, rolesByName.get('TUTOR')!.id);
       filePath: '/uploads/assessment.pdf',
       fileType: 'application/pdf',
       fileSize: 102400,
+    },
+  });
+
+  // Fetch users for linking relations
+  const usersForRelations = await prisma.authUser.findMany({
+    take: 3,
+  });
+
+  // Seed Project Tasks
+  await prisma.projectTask.create({
+    data: {
+      title: 'Implement profile view',
+      isCompleted: false,
+      completedSubtasksCount: 5,
+      totalSubtasksCount: 19,
+      commentsCount: 3,
+      collaborators: {
+        connect: usersForRelations.map(u => ({ id: u.id })),
+      },
+    },
+  });
+
+  await prisma.projectTask.create({
+    data: {
+      title: 'Build dashboard graphs',
+      isCompleted: false,
+      completedSubtasksCount: 0,
+      totalSubtasksCount: 5,
+      commentsCount: 0,
+      collaborators: {
+        connect: [{ id: customAdmin.id }],
+      },
+    },
+  });
+
+  // Seed Shared Assets
+  await prisma.sharedAsset.create({
+    data: {
+      filename: 'IOtask web UI kit.sketch',
+      categoryTag: 'Design',
+      storageUrl: 'https://storage.example.com/assets/iotask_kit.sketch',
+      users: {
+        connect: usersForRelations.map(u => ({ id: u.id })),
+      },
+    },
+  });
+
+  await prisma.sharedAsset.create({
+    data: {
+      filename: 'Q3-Report.pdf',
+      categoryTag: 'Documents',
+      storageUrl: 'https://storage.example.com/assets/q3_report.pdf',
+      users: {
+        connect: [{ id: customAdmin.id }, { id: tutorUser.id }],
+      },
+    },
+  });
+
+  // Seed Activity Timelines
+  await prisma.activityTimeline.create({
+    data: {
+      userId: customAdmin.id,
+      actionTitle: 'Meeting with client',
+      targetName: 'Spotify redesign',
+      targetUrl: 'https://spotify.example.com',
+      categoryType: 'Achievement',
+      priority: 'High',
+    },
+  });
+
+  await prisma.activityTimeline.create({
+    data: {
+      userId: customAdmin.id,
+      actionTitle: 'Grade improvement',
+      targetName: 'Vannak Soy',
+      targetUrl: '/api/v1/students/s01',
+      categoryType: 'Academic',
+      priority: 'Low',
     },
   });
 

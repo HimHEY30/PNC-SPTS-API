@@ -1,0 +1,39 @@
+$kind: http-request
+name: Create Report
+url: "{{baseUrl}}/follow-up/cases/{{caseId}}/reports"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: teacherId
+      value: cmqj80mhf002mqr45lpspsfrt
+      description: ""
+      disabled: false
+    - type: text
+      key: reportDate
+      value: 2026-06-27T08:00:00Z
+      description: ""
+      disabled: false
+    - type: text
+      key: prgressStatus
+      value: FOLLOW_UP
+      description: ""
+      disabled: false
+    - type: text
+      key: observation
+      value: Student attendance improved.
+      description: ""
+      disabled: false
+    - type: text
+      key: nextAction
+      value: Monitor next month.
+      description: ""
+      disabled: false
+    - type: file
+      key: attachments
+      src:
+        - /C:/Users/LOQ/Downloads/getx.pdf
+      description: ""
+      disabled: false
+order: 1000

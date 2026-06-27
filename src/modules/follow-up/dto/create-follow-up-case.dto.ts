@@ -4,15 +4,15 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateFollowUpCaseDto {
   @ApiProperty({ description: 'The UUID of the student' })
-  @IsUUID()
+  @IsString()
   studentId: string;
 
   @ApiProperty({ description: 'The UUID of the teacher who opened the case' })
-  @IsUUID()
+  @IsString()
   openedByTeacherId: string;
 
   @ApiProperty({ description: 'The UUID of the academic term' })
-  @IsUUID()
+  @IsString()
   termId: string;
 
   @ApiProperty({ example: 'Poor attendance', description: 'Title of the follow-up case' })
@@ -30,5 +30,5 @@ export class CreateFollowUpCaseDto {
 
   @ApiProperty({ enum: FollowUpStatus, description: 'Status of the follow-up case' })
   @IsEnum(FollowUpStatus)
-  status: FollowUpStatus;
+  status: FollowUpStatus;s
 }

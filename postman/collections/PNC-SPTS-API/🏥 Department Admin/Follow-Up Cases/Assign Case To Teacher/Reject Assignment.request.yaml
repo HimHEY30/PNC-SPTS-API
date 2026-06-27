@@ -1,0 +1,12 @@
+$kind: http-request
+name: Reject Assignment
+url: "{{baseUrl}}/follow-up/{{caseId}}/assi"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"reason\": \"Currently unavailable.\"\r
+
+    }"
+order: 4209242119027211

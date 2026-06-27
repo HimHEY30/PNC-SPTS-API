@@ -33,6 +33,7 @@ import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 
 // ─── Prisma include shape reused across queries ──────────────────────────────
 
@@ -294,6 +295,161 @@ export class UsersService {
         message: 'You are not allowed to assign this role.',
       });
     }
+  }
+
+  async getUserProfile(id: string) {
+    const user = await this.prisma.authUser.findUnique({
+      where: { id },
+      include: {
+        roles: {
+          include: { role: true },
+        },
+        activities: {
+          orderBy: { eventDate: 'desc' },
+          take: 10,
+        },
+        tasks: {
+          include: {
+            collaborators: {
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                profileImage: true,
+              },
+            },
+          },
+        },
+        sharedAssets: {
+          include: {
+            users: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user || user.deletedAt) {
+      throw new NotFoundException({ error: 'USER_NOT_FOUND' });
+    }
+
+    return {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      profile_image: user.profileImage,
+      entity_type: user.entity_type,
+      status: user.status,
+      is_active: user.is_active,
+      roles: user.roles.map((ur) => ur.role.name),
+      social_links: {
+        twitter: user.twitter_url,
+        facebook: user.facebook_url,
+        linkedin: user.linkedin_url,
+        pinterest: user.pinterest_url,
+      },
+      recent_activities: user.activities.map((act) => ({
+        id: act.id,
+        event_date: act.eventDate,
+        action_title: act.actionTitle,
+        target_name: act.targetName,
+        target_url: act.targetUrl,
+        category_type: act.categoryType,
+        priority: act.priority,
+      })),
+      assigned_tasks: user.tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        is_completed: task.isCompleted,
+        completed_subtasks_count: task.completedSubtasksCount,
+        total_subtasks_count: task.totalSubtasksCount,
+        comments_count: task.commentsCount,
+        collaborators: task.collaborators.map((col) => ({
+          id: col.id,
+          first_name: col.first_name,
+          last_name: col.last_name,
+          profile_image: col.profileImage,
+        })),
+      })),
+      uploaded_files: user.sharedAssets.map((file) => ({
+        id: file.id,
+        filename: file.filename,
+        category_tag: file.categoryTag,
+        storage_url: file.storageUrl,
+        created_at: file.createdAt,
+        shared_count: file.users.length,
+      })),
+    };
+  }
+
+  async updateUserProfile(id: string, dto: UpdateUserProfileDto) {
+    await this.ensureUserExists(id);
+
+    if (dto.phone) {
+      const existingPhone = await this.prisma.authUser.findFirst({
+        where: { phone: dto.phone, NOT: { id } },
+      });
+      if (existingPhone) {
+        throw new ConflictException({ error: 'PHONE_ALREADY_EXISTS' });
+      }
+    }
+
+    const updatedUser = await this.prisma.$transaction(async (tx) => {
+      // 1. Update AuthUser
+      const auth = await tx.authUser.update({
+        where: { id },
+        data: {
+          first_name: dto.first_name,
+          last_name: dto.last_name,
+          phone: dto.phone,
+          profileImage: dto.profileImage,
+          twitter_url: dto.twitter_url,
+          facebook_url: dto.facebook_url,
+          linkedin_url: dto.linkedin_url,
+          pinterest_url: dto.pinterest_url,
+        },
+      });
+
+      // 2. Sync Student record (matched by email)
+      if (auth.email) {
+        const student = await tx.student.findUnique({
+          where: { email: auth.email },
+        });
+        if (student) {
+          await tx.student.update({
+            where: { id: student.id },
+            data: {
+              firstName: dto.first_name,
+              lastName: dto.last_name,
+              phone: dto.phone,
+              profileImage: dto.profileImage,
+            },
+          });
+        }
+      }
+
+      // 3. Sync Teacher record (matched by userId)
+      const teacher = await tx.teacher.findUnique({ where: { userId: id } });
+      if (teacher) {
+        await tx.teacher.update({
+          where: { id: teacher.id },
+          data: {
+            firstName: dto.first_name,
+            lastName: dto.last_name,
+            phone: dto.phone,
+          },
+        });
+      }
+
+      return auth;
+    });
+
+    return this.getUserProfile(updatedUser.id);
   }
 
   private toUserResponse(user: {

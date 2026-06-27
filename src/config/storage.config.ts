@@ -24,6 +24,7 @@
  */
 
 import { BadRequestException } from '@nestjs/common';
+import { mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -52,7 +53,11 @@ const ALLOWED_MIME_TYPES = new Set([
  *   mkdir -p uploads/profile-images
  */
 export const profileImageStorage = diskStorage({
-  destination: './uploads/profile-images',
+  destination: (_req, _file, callback) => {
+    const destination = './uploads/profile-images';
+    mkdirSync(destination, { recursive: true });
+    callback(null, destination);
+  },
   filename: (_req, file, callback) => {
     const uniqueName = `${uuidv4()}${extname(file.originalname).toLowerCase()}`;
     callback(null, uniqueName);
@@ -132,4 +137,74 @@ export const toLiveImageUrl = (path: string | null | undefined, providedBaseUrl?
   
   const baseUrl = providedBaseUrl || process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
   return `${baseUrl.replace(/\/$/, '')}${path}`;
+};
+
+// ── Follow-up Attachments Config ─────────────────────────────────────────────
+
+/** 10 MB in bytes */
+export const ATTACHMENT_MAX_SIZE_BYTES = 10 * 1024 * 1024;
+
+/** MIME types accepted for follow-up attachments */
+const ALLOWED_ATTACHMENT_MIME_TYPES = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/plain',
+  'application/zip',
+  'application/x-zip-compressed',
+  'application/x-rar-compressed',
+]);
+
+/** Saves attachment files to ./uploads/follow-up-attachments */
+export const attachmentStorage = diskStorage({
+  destination: (_req, _file, callback) => {
+    const destination = './uploads/follow-up-attachments';
+    mkdirSync(destination, { recursive: true });
+    callback(null, destination);
+  },
+  filename: (_req, file, callback) => {
+    const uniqueName = `${uuidv4()}${extname(file.originalname).toLowerCase()}`;
+    callback(null, uniqueName);
+  },
+});
+
+export const attachmentFileFilter = (
+  _req: Express.Request,
+  file: Express.Multer.File,
+  callback: (error: Error | null, acceptFile: boolean) => void,
+): void => {
+  let { mimetype } = file;
+
+  if (mimetype === 'application/octet-stream') {
+    const ext = extname(file.originalname).toLowerCase();
+    const fallbackMime: Record<string, string> = {
+      '.pdf': 'application/pdf',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.xls': 'application/vnd.ms-excel',
+      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.ppt': 'application/vnd.ms-powerpoint',
+      '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.txt': 'text/plain',
+      '.zip': 'application/zip',
+    };
+    mimetype = fallbackMime[ext] ?? mimetype;
+    file.mimetype = mimetype;
+  }
+
+  if (ALLOWED_ATTACHMENT_MIME_TYPES.has(mimetype)) {
+    callback(null, true);
+  } else {
+    callback(
+      new BadRequestException(
+        `Unsupported attachment file type "${mimetype}". ` +
+          `Allowed formats include PDF, Word, Excel, PowerPoint, Text, and ZIP/RAR archives.`,
+      ),
+      false,
+    );
+  }
 };

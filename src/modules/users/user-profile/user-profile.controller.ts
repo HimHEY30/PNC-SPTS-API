@@ -26,6 +26,6 @@ export class UserProfileController {
   @Permissions('user.profile.read')
   @ApiOperation({ summary: "Get the current user's full profile" })
   async getProfile(@Req() req: Request) {
-    return this.usersService.findOne(req.user.user_id);
+    return this.usersService.getUserProfile(req.user.user_id);
   }
 }

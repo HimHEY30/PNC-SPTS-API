@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/follow-up/reports/{{reportId}}/attachments"
+method: GET
+order: 1603745223254240

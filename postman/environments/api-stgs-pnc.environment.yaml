@@ -6,4 +6,16 @@ values:
     value: ''
   - key: refreshToken
     value: ''
+  - key: caseId
+    value: ''
+  - key: reportId
+    value: ''
+  - key: caseId
+    value: ''
+  - key: teacherId
+    value: ''
+  - key: studentId
+    value: ''
+  - key: termId
+    value: ''
 color: 0

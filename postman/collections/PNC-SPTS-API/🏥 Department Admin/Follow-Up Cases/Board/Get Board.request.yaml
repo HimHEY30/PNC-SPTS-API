@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Board
+url: "{{baseUrl}}/follow-up/board"
+method: GET
+order: 2000

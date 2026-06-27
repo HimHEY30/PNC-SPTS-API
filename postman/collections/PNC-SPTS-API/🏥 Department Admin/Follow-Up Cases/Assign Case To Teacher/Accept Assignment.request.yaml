@@ -1,0 +1,12 @@
+$kind: http-request
+name: Accept Assignment
+url: "{{baseUrl}}/follow-up/{{caseId}}/assi"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"reason\": \"Cute mes.\"\r
+
+    }"
+order: 2070625484477275
