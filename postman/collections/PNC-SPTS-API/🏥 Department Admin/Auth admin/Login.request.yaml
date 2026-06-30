@@ -15,8 +15,8 @@ body:
   type: json
   content: |-
     {
-      "email": "superadmin@example.com",
-      "password": "Password123!"
+      "email": "chandy.neat@student.passerellesnumeriques.org",
+      "password": "NewAdmin@5678"
     }
 scripts:
   - type: afterResponse

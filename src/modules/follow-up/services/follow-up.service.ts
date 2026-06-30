@@ -5,23 +5,23 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FollowUpRepository } from './follow-up.repository';
-import { AssignFollowUpCaseDto } from './dto/assign-follow-up-case.dto';
-import { CompleteFollowUpCaseDto } from './dto/complete-follow-up-case.dto';
-import { CreateFollowUpCaseDto } from './dto/create-follow-up-case.dto';
-import { CreateFollowUpReportDto } from './dto/create-follow-up-report.dto';
-import { RejectFollowUpCaseDto } from './dto/reject-follow-up-case.dto';
+import { FollowUpRepository } from '../follow-up.repository';
+import { AssignFollowUpCaseDto } from '../dto/assign-follow-up-case.dto';
+import { CompleteFollowUpCaseDto } from '../dto/complete-follow-up-case.dto';
+import { CreateFollowUpCaseDto } from '../dto/create-follow-up-case.dto';
+import { CreateFollowUpReportDto } from '../dto/create-follow-up-report.dto';
+import { RejectFollowUpCaseDto } from '../dto/reject-follow-up-case.dto';
 import { FollowUpCase, FollowUpStatus } from '@prisma/client';
-import { RedisService } from '../../redis/redis.service';
-import { PrismaService } from '../../database/prisma.service';
-import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
-import { FollowUpCaseEventBus } from './events/follow-up-case-event-bus.service';
+import { RedisService } from '../../../redis/redis.service';
+import { PrismaService } from '../../../database/prisma.service';
+import { AuthenticatedUser } from '../../../common/interfaces/authenticated-user.interface';
+import { FollowUpCaseEventBus } from '../events/follow-up-case-event-bus.service';
 import {
   CaseAcceptedEvent,
   CaseAssignedEvent,
   CaseCompletedEvent,
   CaseRejectedEvent,
-} from './events/follow-up-case.events';
+} from '../events/follow-up-case.events';
 
 const BOARD_CACHE_KEY = 'board:cache';
 

@@ -1,6 +1,6 @@
 $kind: http-request
 name: Assign Case to teacher
-url: "{{baseUrl}}/follow-up/{{caseId}}/assign"
+url: "{{baseUrl}}/follow-up-cases/{{caseId}}/assign"
 method: POST
 body:
   type: json
@@ -9,4 +9,4 @@ body:
     \    \"teacherId\": \"{{teacherId}}\"\r
 
     }"
-order: 1782547895055
+order: 1269

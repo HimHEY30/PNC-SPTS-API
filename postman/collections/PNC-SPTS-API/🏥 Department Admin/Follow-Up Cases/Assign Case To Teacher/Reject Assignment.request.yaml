@@ -1,6 +1,6 @@
 $kind: http-request
 name: Reject Assignment
-url: "{{baseUrl}}/follow-up/{{caseId}}/assi"
+url: "{{baseUrl}}/follow-up-cases/{{caseId}}/assi"
 method: POST
 body:
   type: json
@@ -9,4 +9,4 @@ body:
     \    \"reason\": \"Currently unavailable.\"\r
 
     }"
-order: 4209242119027211
+order: 4000

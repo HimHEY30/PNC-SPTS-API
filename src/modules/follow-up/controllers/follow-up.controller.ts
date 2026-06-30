@@ -16,11 +16,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { FollowUpService } from './follow-up.service';
-import { CreateFollowUpCaseDto } from './dto/create-follow-up-case.dto';
-import { CreateFollowUpReportDto } from './dto/create-follow-up-report.dto';
-import { UpdateFollowUpCaseDto } from './dto/update-follow-up-case.dto';
-import { MoveCaseDto } from './dto/move-case.dto';
+import { FollowUpService } from '../services/follow-up.service';
+import { CreateFollowUpCaseDto } from '../dto/create-follow-up-case.dto';
+import { CreateFollowUpReportDto } from '../dto/create-follow-up-report.dto';
+import { UpdateFollowUpCaseDto } from '../dto/update-follow-up-case.dto';
+import { MoveCaseDto } from '../dto/move-case.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -30,14 +30,14 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CaseOwnerGuard } from '../../common/guards/case-owner.guard';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { CaseOwnerGuard } from '../../../common/guards/case-owner.guard';
 import { Request } from 'express';
 import {
   ATTACHMENT_MAX_SIZE_BYTES,
   attachmentFileFilter,
   attachmentStorage,
-} from '../../config/storage.config';
+} from '../../../config/storage.config';
 
 const attachmentInterceptorOptions = {
   storage: attachmentStorage,

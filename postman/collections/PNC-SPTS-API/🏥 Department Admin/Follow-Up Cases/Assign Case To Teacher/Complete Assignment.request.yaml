@@ -1,6 +1,6 @@
 $kind: http-request
 name: Complete Assignment
-url: "{{baseUrl}}/follow-up/{{caseId}}/complete"
+url: "{{baseUrl}}/follow-up-/{{caseId}}/complete"
 method: POST
 body:
   type: json
@@ -9,4 +9,4 @@ body:
     \    \"summary\": \"Student attendance has improved.\"\r
 
     }"
-order: 4213991563489637
+order: 5000

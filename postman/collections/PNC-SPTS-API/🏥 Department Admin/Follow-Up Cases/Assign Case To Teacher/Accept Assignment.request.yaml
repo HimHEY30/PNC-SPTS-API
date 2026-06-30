@@ -1,6 +1,6 @@
 $kind: http-request
 name: Accept Assignment
-url: "{{baseUrl}}/follow-up/{{caseId}}/assi"
+url: "{{baseUrl}}/follow-up-cases/{{caseId}}/assi"
 method: POST
 body:
   type: json
@@ -9,4 +9,4 @@ body:
     \    \"reason\": \"Cute mes.\"\r
 
     }"
-order: 2070625484477275
+order: 3000
